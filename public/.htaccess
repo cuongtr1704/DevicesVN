@@ -12,7 +12,7 @@
     # Redirect to index.php if file/directory doesn't exist
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+    RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]
 </IfModule>
 
 # Prevent directory browsing

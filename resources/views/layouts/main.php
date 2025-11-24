@@ -10,6 +10,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="<?php echo asset('css/main-layout.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset('css/auth-modal.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset('css/register-login.css'); ?>">
     <link rel="stylesheet" href="<?php echo asset('css/home.css'); ?>">
     <link rel="stylesheet" href="<?php echo asset('css/style.css'); ?>">
 </head>
@@ -27,8 +29,8 @@
                             <small>Welcome, <?php echo escape($_SESSION['user_name']); ?>!</small>
                             <a href="<?php echo url('auth/logout'); ?>" class="text-white ms-3"><small>Logout</small></a>
                         <?php else: ?>
-                            <a href="<?php echo url('auth/login'); ?>" class="text-white"><small>Login</small></a>
-                            <a href="<?php echo url('auth/register'); ?>" class="text-white ms-3"><small>Register</small></a>
+                            <a href="javascript:void(0)" onclick="openLoginModal()" class="text-white"><small>Login</small></a>
+                            <a href="javascript:void(0)" onclick="openRegisterModal()" class="text-white ms-3"><small>Register</small></a>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -151,5 +153,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="<?php echo asset('js/main.js'); ?>"></script>
+    <script src="<?php echo asset('js/auth-modal.js'); ?>"></script>
+    
+    <?php require_once __DIR__ . '/modals.php'; ?>
 </body>
 </html>

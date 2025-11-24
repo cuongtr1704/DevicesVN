@@ -13,7 +13,7 @@ define('APP_KEY', Env::get('APP_KEY', 'default-insecure-key'));
 
 // URL Settings
 define('BASE_URL', rtrim(Env::get('APP_URL', 'http://localhost/devicesvn/'), '/') . '/');
-define('ASSETS_URL', BASE_URL);
+define('ASSETS_URL', BASE_URL . 'public/');
 
 // Path Settings
 define('UPLOAD_PATH', PUBLIC_PATH . '/storage/uploads/');

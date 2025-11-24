@@ -42,7 +42,7 @@ class AuthController extends Controller {
             $data['old'] = $_POST;
         }
         
-        $this->view('auth/login', $data);
+        $this->view('auth/login', $data, null);
     }
 
     public function register() {
@@ -93,7 +93,7 @@ class AuthController extends Controller {
             $data['old'] = $_POST;
         }
         
-        $this->view('auth/register', $data);
+        $this->view('auth/register', $data, null);
     }
 
     public function logout() {

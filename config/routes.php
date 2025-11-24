@@ -36,8 +36,7 @@ return [
     'search/suggestions' => ['controller' => 'SearchController', 'action' => 'suggestions'],
     
     // ==================== AUTHENTICATION ROUTES ====================
-    'login' => ['controller' => 'AuthController', 'action' => 'login'],
-    'register' => ['controller' => 'AuthController', 'action' => 'register'],
+    // Note: Login/Register now handled via modals, but keep POST endpoints for form submission
     'logout' => ['controller' => 'AuthController', 'action' => 'logout'],
     'forgot-password' => ['controller' => 'AuthController', 'action' => 'forgotPassword'],
     

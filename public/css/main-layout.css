@@ -1,0 +1,326 @@
+/* ============================================================
+   DevicesVN - Main Layout Styles
+   Color Palette: #2F1067, #53576C, #151C32, #09213A, #1A1C32, #FFFFFF
+   ============================================================ */
+
+:root {
+    --indigo-ink: #2F1067;
+    --blue-slate: #53576C;
+    --prussian-blue: #151C32;
+    --prussian-blue-alt: #09213A;
+    --space-indigo: #1A1C32;
+    --white: #FFFFFF;
+    --light-bg: #F8F9FA;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--prussian-blue);
+    background-color: var(--light-bg);
+}
+
+/* ============================================================
+   Header - Top Bar
+   ============================================================ */
+
+.top-bar {
+    background-color: var(--space-indigo) !important;
+    font-size: 14px;
+}
+
+.top-bar a {
+    color: var(--white);
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+
+.top-bar a:hover {
+    opacity: 0.8;
+}
+
+/* ============================================================
+   Header - Main Header
+   ============================================================ */
+
+.main-header {
+    background-color: var(--white);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.logo {
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+
+.logo:hover {
+    opacity: 0.8;
+}
+
+.logo-icon {
+    height: 40px;
+    width: auto;
+}
+
+.logo-text {
+    color: var(--indigo-ink);
+    font-weight: 700;
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, var(--indigo-ink), var(--prussian-blue-alt));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ============================================================
+   Search Form
+   ============================================================ */
+
+.search-form {
+    position: relative;
+}
+
+.search-form .form-control {
+    border: 2px solid var(--blue-slate);
+    border-radius: 8px 0 0 8px;
+    padding: 12px 20px;
+}
+
+.search-form .form-control:focus {
+    border-color: var(--indigo-ink);
+    box-shadow: 0 0 0 0.2rem rgba(47, 16, 103, 0.15);
+}
+
+.search-form .btn-primary {
+    background-color: var(--indigo-ink);
+    border-color: var(--indigo-ink);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 24px;
+}
+
+.search-form .btn-primary:hover {
+    background-color: var(--prussian-blue-alt);
+    border-color: var(--prussian-blue-alt);
+}
+
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 50px;
+    background: var(--white);
+    border: 1px solid var(--blue-slate);
+    border-top: none;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-radius: 0 0 8px 8px;
+}
+
+.search-suggestions.show {
+    display: block;
+}
+
+.search-suggestion-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid var(--light-bg);
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--prussian-blue);
+    transition: background-color 0.2s ease;
+}
+
+.search-suggestion-item:hover {
+    background-color: var(--light-bg);
+}
+
+/* ============================================================
+   Navigation Bar
+   ============================================================ */
+
+.navbar {
+    background-color: var(--prussian-blue) !important;
+    padding: 0;
+}
+
+.navbar .nav-link {
+    color: var(--white) !important;
+    font-weight: 500;
+    padding: 1rem 1.5rem !important;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+    background-color: var(--indigo-ink);
+    border-bottom-color: var(--white);
+}
+
+.navbar .dropdown-menu {
+    background-color: var(--prussian-blue);
+    border: none;
+    border-radius: 0 0 8px 8px;
+    padding: 0;
+}
+
+.navbar .dropdown-item {
+    color: var(--white);
+    padding: 12px 20px;
+    transition: all 0.2s ease;
+}
+
+.navbar .dropdown-item:hover {
+    background-color: var(--indigo-ink);
+    padding-left: 25px;
+}
+
+/* ============================================================
+   Cart Button
+   ============================================================ */
+
+.btn-outline-primary {
+    color: var(--indigo-ink);
+    border-color: var(--indigo-ink);
+    font-weight: 600;
+    border-width: 2px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--indigo-ink);
+    border-color: var(--indigo-ink);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(47, 16, 103, 0.2);
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+
+footer {
+    background-color: var(--space-indigo);
+    color: var(--white);
+    padding: 50px 0 20px;
+    margin-top: 4rem;
+}
+
+footer h5 {
+    color: var(--white);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
+
+footer ul {
+    list-style: none;
+    padding: 0;
+}
+
+footer ul li {
+    margin-bottom: 0.8rem;
+}
+
+footer a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+footer a:hover {
+    color: var(--white);
+    padding-left: 5px;
+}
+
+footer .social-links a {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    background-color: var(--indigo-ink);
+    border-radius: 50%;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+
+footer .social-links a:hover {
+    background-color: var(--prussian-blue-alt);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+footer .border-top {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ============================================================
+   Buttons Global
+   ============================================================ */
+
+.btn {
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--indigo-ink);
+    border-color: var(--indigo-ink);
+}
+
+.btn-primary:hover {
+    background-color: var(--prussian-blue-alt);
+    border-color: var(--prussian-blue-alt);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(47, 16, 103, 0.2);
+}
+
+.btn-lg {
+    padding: 15px 40px;
+    font-size: 1.1rem;
+    border-radius: 50px;
+}
+
+/* ============================================================
+   Main Content
+   ============================================================ */
+
+.main-content {
+    min-height: 60vh;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .navbar .nav-link {
+        padding: 0.8rem 1rem !important;
+    }
+    
+    .search-form {
+        margin: 15px 0;
+    }
+    
+    footer {
+        text-align: center;
+    }
+    
+    footer .social-links {
+        justify-content: center;
+        display: flex;
+    }
+}

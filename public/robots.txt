@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /app/
+Disallow: /config/
+Disallow: /storage/
+Disallow: /vendor/
+
+Allow: /
+Allow: /products
+Allow: /search
+
+Sitemap: http://localhost/devicesvn/public/sitemap.xml

@@ -5,70 +5,7 @@
 <div class="container-fluid my-4">
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-md-3">
-            <div class="dashboard-sidebar">
-                <div class="user-info mb-4">
-                    <div class="avatar-circle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #2F1067, #151C32); color: white; border-radius: 50%; font-weight: 600; font-size: 32px;">
-                        <?= strtoupper(substr($_SESSION['user_name'], 0, 1)) ?>
-                    </div>
-                    <h5 class="text-center mb-1"><?= escape($_SESSION['user_name']) ?></h5>
-                    <p class="text-center text-muted small"><?= escape($_SESSION['user_email']) ?></p>
-                </div>
-                
-                <ul class="nav flex-column dashboard-nav">
-                    <li class="nav-item">
-                        <a class="nav-link <?= ($activeSection ?? '') === 'overview' ? 'active' : '' ?>" href="<?= url('dashboard') ?>">
-                            <i class="fas fa-home me-2"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?= ($activeSection ?? '') === 'profile' ? 'active' : '' ?>" href="<?= url('dashboard/profile') ?>">
-                            <i class="fas fa-user me-2"></i> My Profile
-                        </a>
-                    </li>
-                    
-                    <?php if (($userRole ?? 'customer') === 'admin'): ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="<?= url('dashboard/categories') ?>">
-                                <i class="fas fa-tags me-2"></i> Categories
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="<?= url('dashboard/products') ?>">
-                                <i class="fas fa-box me-2"></i> Products
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="<?= url('dashboard/customers') ?>">
-                                <i class="fas fa-users me-2"></i> Customers
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?= ($activeSection ?? '') === 'orders' ? 'active' : '' ?>" href="<?= url('dashboard/orders') ?>">
-                                <i class="fas fa-shopping-cart me-2"></i> Orders
-                            </a>
-                        </li>
-                    <?php else: ?>
-                        <li class="nav-item">
-                            <a class="nav-link <?= ($activeSection ?? '') === 'orders' ? 'active' : '' ?>" href="<?= url('dashboard/orders') ?>">
-                                <i class="fas fa-shopping-bag me-2"></i> My Orders
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?= ($activeSection ?? '') === 'wishlist' ? 'active' : '' ?>" href="<?= url('dashboard/wishlist') ?>">
-                                <i class="fas fa-heart me-2"></i> Wishlist
-                            </a>
-                        </li>
-                    <?php endif; ?>
-                    
-                    <li class="nav-item mt-3">
-                        <a class="nav-link text-danger" href="<?= url('logout') ?>" id="logoutLink">
-                            <i class="fas fa-sign-out-alt me-2"></i> Logout
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        <?php require_once __DIR__ . '/../components/dashboard-sidebar.php'; ?>
         
         <!-- Main Content -->
         <div class="col-md-9">
@@ -100,7 +37,7 @@
                         <?php foreach ($orders as $order): ?>
                             <div class="card border-0 shadow-sm mb-3 order-card">
                                 <div class="card-body p-3">
-                                    <div class="row align-items-center">
+                                    <div class="row align-items-center g-2">
                                         <div class="col-auto order-icon-col">
                                             <div class="order-icon">
                                                 <i class="fas fa-shopping-bag"></i>
@@ -108,8 +45,8 @@
                                         </div>
                                         
                                         <div class="col">
-                                            <div class="row align-items-center">
-                                                <div class="col-lg-3 col-md-4 mb-2 mb-md-0">
+                                            <div class="row align-items-center g-3">
+                                                <div class="col-lg-3 col-md-4 col-12">
                                                     <div class="order-number mb-1">
                                                         <strong>Order #<?= escape($order['order_number']) ?></strong>
                                                     </div>
@@ -119,21 +56,21 @@
                                                     </small>
                                                 </div>
                                                 
-                                                <div class="col-lg-2 col-md-3 col-4 mb-2 mb-md-0">
+                                                <div class="col-lg-2 col-md-3 col-6">
                                                     <div class="order-info-item">
                                                         <small class="text-muted d-block">Items</small>
                                                         <strong><?= $order['item_count'] ?> item<?= $order['item_count'] > 1 ? 's' : '' ?></strong>
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="col-lg-3 col-md-3 col-8 mb-2 mb-md-0">
+                                                <div class="col-lg-2 col-md-3 col-6">
                                                     <div class="order-info-item">
                                                         <small class="text-muted d-block">Total</small>
-                                                        <strong class="text-primary fs-6"><?= number_format($order['total_amount']) ?> ₫</strong>
+                                                        <strong class="text-primary"><?= number_format($order['total_amount']) ?> ₫</strong>
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="col-lg-2 col-md-6 col-12 mb-2 mb-md-0">
+                                                <div class="col-lg-2 col-md-4 col-12">
                                                     <?php
                                                     $statusColors = [
                                                         'pending' => 'warning',
@@ -157,7 +94,7 @@
                                                     </span>
                                                 </div>
                                                 
-                                                <div class="col-lg-2 col-md-6 col-12 text-end">
+                                                <div class="col-lg-3 col-md-8 col-12">
                                                     <div class="order-actions">
                                                         <a href="<?= url('orders/detail/' . $order['id']) ?>" 
                                                            class="btn btn-square btn-view" 
@@ -213,13 +150,6 @@
 </div>
 
 <script>
-document.getElementById('logoutLink').addEventListener('click', function(e) {
-    e.preventDefault();
-    if (confirm('Are you sure you want to logout?')) {
-        window.location.href = this.href;
-    }
-});
-
 let pendingCancelId = null;
 
 function cancelOrder(orderId) {
@@ -278,6 +208,8 @@ function showNotification(message, type) {
 }
 </script>
 
+<script src="<?= asset('js/dashboard.js') ?>"></script>
+
 <style>
 .order-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -304,6 +236,7 @@ function showNotification(message, type) {
     justify-content: center;
     color: white;
     font-size: 22px;
+    margin-right:6px;
 }
 
 .order-number {
@@ -313,6 +246,7 @@ function showNotification(message, type) {
 
 .order-info-item strong {
     font-size: 0.95rem;
+    display: block;
 }
 
 .badge-status {
@@ -320,12 +254,25 @@ function showNotification(message, type) {
     font-size: 0.8rem;
     padding: 6px 14px;
     border-radius: 20px;
+    display: inline-block;
 }
 
 .order-actions {
     display: flex;
     gap: 6px;
     justify-content: flex-end;
+}
+
+@media (max-width: 991px) {
+    .order-actions {
+        justify-content: flex-start;
+    }
+}
+
+@media (min-width: 992px) {
+    .order-actions {
+        justify-content: flex-end !important;
+    }
 }
 
 .btn-square {
@@ -435,10 +382,12 @@ function showNotification(message, type) {
 }
 
 @media (max-width: 768px) {
-    .order-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
+    .order-card .card-body {
+        padding: 1rem !important;
+    }
+    
+    .order-icon-col {
+        display: none;
     }
     
     .order-number {
@@ -449,9 +398,33 @@ function showNotification(message, type) {
         font-size: 0.85rem;
     }
     
+    .order-info-item small {
+        font-size: 0.75rem;
+    }
+    
+    .badge-status {
+        font-size: 0.75rem;
+        padding: 5px 12px;
+    }
+    
     .order-actions {
+        gap: 8px;
         justify-content: flex-start;
-        margin-top: 8px;
+    }
+    
+    .btn-square {
+        width: 34px;
+        height: 34px;
+        font-size: 13px;
+    }
+    
+    .dashboard-content h3 {
+        font-size: 1.25rem;
+    }
+    
+    .btn-outline-primary {
+        font-size: 0.85rem;
+        padding: 0.375rem 0.75rem;
     }
 }
 </style>

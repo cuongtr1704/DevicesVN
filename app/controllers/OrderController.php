@@ -32,6 +32,7 @@ class OrderController extends Controller {
             'activeSection' => 'orders',
             'userRole' => $_SESSION['user_role'] ?? 'customer',
             'breadcrumbs' => [
+                ['label' => 'Dashboard', 'url' => url('dashboard')],
                 ['label' => 'My Orders', 'url' => '']
             ]
         ]);

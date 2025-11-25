@@ -120,4 +120,124 @@ class DashboardController extends Controller {
         
         $this->view('dashboard/profile', $data);
     }
+    
+    /**
+     * Categories management (Admin only)
+     */
+    public function categories() {
+        if (!$this->isLoggedIn() || $_SESSION['user_role'] !== 'admin') {
+            $this->redirect('dashboard');
+            return;
+        }
+        
+        $categoryModel = $this->model('Category');
+        $categories = $categoryModel->getAll();
+        
+        $breadcrumbs = [
+            ['label' => 'Dashboard', 'url' => url('dashboard')],
+            ['label' => 'Categories', 'url' => '']
+        ];
+        
+        $data = [
+            'title' => 'Manage Categories - ' . APP_NAME,
+            'categories' => $categories,
+            'activeSection' => 'categories',
+            'userRole' => 'admin',
+            'breadcrumbs' => $breadcrumbs
+        ];
+        
+        $this->view('dashboard/categories', $data);
+    }
+    
+    /**
+     * Products management (Admin only)
+     */
+    public function products() {
+        if (!$this->isLoggedIn() || $_SESSION['user_role'] !== 'admin') {
+            $this->redirect('dashboard');
+            return;
+        }
+        
+        $productModel = $this->model('Product');
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $perPage = 20;
+        
+        $products = $productModel->getPaginated($page, $perPage);
+        $totalProducts = $productModel->count();
+        $totalPages = ceil($totalProducts / $perPage);
+        
+        $breadcrumbs = [
+            ['label' => 'Dashboard', 'url' => url('dashboard')],
+            ['label' => 'Products', 'url' => '']
+        ];
+        
+        $data = [
+            'title' => 'Manage Products - ' . APP_NAME,
+            'products' => $products,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalProducts' => $totalProducts,
+            'activeSection' => 'products',
+            'userRole' => 'admin',
+            'breadcrumbs' => $breadcrumbs
+        ];
+        
+        $this->view('dashboard/products', $data);
+    }
+    
+    /**
+     * Customers management (Admin only)
+     */
+    public function customers() {
+        if (!$this->isLoggedIn() || $_SESSION['user_role'] !== 'admin') {
+            $this->redirect('dashboard');
+            return;
+        }
+        
+        $userModel = $this->model('User');
+        $customers = $userModel->getAll();
+        
+        $breadcrumbs = [
+            ['label' => 'Dashboard', 'url' => url('dashboard')],
+            ['label' => 'Customers', 'url' => '']
+        ];
+        
+        $data = [
+            'title' => 'Manage Customers - ' . APP_NAME,
+            'customers' => $customers,
+            'activeSection' => 'customers',
+            'userRole' => 'admin',
+            'breadcrumbs' => $breadcrumbs
+        ];
+        
+        $this->view('dashboard/customers', $data);
+    }
+    
+    /**
+     * All orders management (Admin only)
+     */
+    public function allOrders() {
+        if (!$this->isLoggedIn() || $_SESSION['user_role'] !== 'admin') {
+            $this->redirect('dashboard');
+            return;
+        }
+        
+        $orderModel = $this->model('Order');
+        $orders = $orderModel->getAll('created_at DESC', 100);
+        
+        $breadcrumbs = [
+            ['label' => 'Dashboard', 'url' => url('dashboard')],
+            ['label' => 'All Orders', 'url' => '']
+        ];
+        
+        $data = [
+            'title' => 'Manage All Orders - ' . APP_NAME,
+            'orders' => $orders,
+            'activeSection' => 'all-orders',
+            'userRole' => 'admin',
+            'breadcrumbs' => $breadcrumbs
+        ];
+        
+        $this->view('dashboard/all-orders', $data);
+    }
 }

@@ -50,6 +50,10 @@ return [
     'dashboard' => ['controller' => 'DashboardController', 'action' => 'index'],
     'dashboard/profile' => ['controller' => 'DashboardController', 'action' => 'profile'],
     'dashboard/wishlist' => ['controller' => 'WishlistController', 'action' => 'index'],
+    'dashboard/categories' => ['controller' => 'DashboardController', 'action' => 'categories'],
+    'dashboard/products' => ['controller' => 'DashboardController', 'action' => 'products'],
+    'dashboard/customers' => ['controller' => 'DashboardController', 'action' => 'customers'],
+    'dashboard/all-orders' => ['controller' => 'DashboardController', 'action' => 'allOrders'],
     
     // ==================== WISHLIST ROUTES ====================
     'wishlist/add' => ['controller' => 'WishlistController', 'action' => 'add'],

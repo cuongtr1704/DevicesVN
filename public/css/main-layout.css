@@ -568,6 +568,11 @@ footer .border-top {
     
     .main-header .row {
         align-items: center;
+        margin: 0;
+    }
+    
+    .main-header .col-md-3 {
+        padding: 0 0.5rem;
     }
     
     .main-header .col-md-3:first-child {
@@ -587,6 +592,17 @@ footer .border-top {
         width: 100%;
         margin-top: 0.75rem;
         flex: 0 0 100%;
+        padding: 0 0.5rem;
+    }
+    
+    .logo {
+        display: flex;
+        align-items: center;
+    }
+    
+    .logo-icon {
+        height: 35px !important;
+        margin-right: 0.5rem;
     }
     
     .logo-text {
@@ -595,7 +611,14 @@ footer .border-top {
     
     .btn-outline-primary {
         padding: 0.5rem 0.75rem;
-        font-size: 0.9rem;
+        font-size: 0.875rem;
+        margin-right: 0.5rem;
+    }
+    
+    #userAvatarDropdown {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 15px !important;
     }
 }
 

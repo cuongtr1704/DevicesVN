@@ -59,7 +59,6 @@ class HomeController extends Controller {
         $categories = $categoryModel->getActive();
         
         $breadcrumbs = [
-            ['label' => 'Home', 'url' => url('')],
             ['label' => 'Categories', 'url' => '']
         ];
         

@@ -139,22 +139,98 @@ class Product extends Model {
         
         return $stmt->fetch();
     }
+    
+    /**
+     * Get product by ID
+     */
+    public function getById($id) {
+        $stmt = $this->db->prepare("SELECT * FROM products WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch();
+    }
 
-    public function search($query, $limit = 10) {
-        $sql = "SELECT p.id, p.name, p.slug, p.price, p.sale_price, 
-                       pi.image_url as main_image
-                FROM {$this->table} p
-                LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
-                WHERE p.name LIKE :query 
-                ORDER BY p.name 
-                LIMIT :limit";
+    /**
+     * Search products with pagination
+     */
+    public function search($query, $page = 1, $perPage = 12) {
+        $offset = ($page - 1) * $perPage;
+        $searchTerm = '%' . $query . '%';
         
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':query', '%' . $query . '%');
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->execute();
+        $stmt = $this->db->prepare("
+            SELECT p.*, c.name as category_name, c.slug as category_slug,
+                   pi.image_url as main_image
+            FROM products p
+            LEFT JOIN categories c ON p.category_id = c.id
+            LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
+            WHERE (p.name LIKE ? OR p.description LIKE ? OR p.brand LIKE ? OR p.sku LIKE ?)
+            ORDER BY 
+                CASE 
+                    WHEN p.name LIKE ? THEN 1
+                    WHEN p.brand LIKE ? THEN 2
+                    ELSE 3
+                END,
+                p.name ASC
+            LIMIT ? OFFSET ?
+        ");
+        
+        $stmt->execute([
+            $searchTerm, $searchTerm, $searchTerm, $searchTerm,
+            $searchTerm, $searchTerm,
+            $perPage, $offset
+        ]);
         
         return $stmt->fetchAll();
+    }
+    
+    /**
+     * Get search suggestions (for autocomplete dropdown)
+     */
+    public function searchSuggestions($query, $limit = 5) {
+        $searchTerm = '%' . $query . '%';
+        
+        $stmt = $this->db->prepare("
+            SELECT p.id, p.name, p.slug, p.price, p.sale_price, p.brand,
+                   pi.image_url as main_image,
+                   c.name as category_name
+            FROM products p
+            LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE (p.name LIKE ? OR p.brand LIKE ?)
+            ORDER BY 
+                CASE 
+                    WHEN p.name LIKE ? THEN 1
+                    WHEN p.brand LIKE ? THEN 2
+                    ELSE 3
+                END,
+                p.name ASC
+            LIMIT ?
+        ");
+        
+        $stmt->execute([
+            $searchTerm, $searchTerm,
+            $searchTerm, $searchTerm,
+            $limit
+        ]);
+        
+        return $stmt->fetchAll();
+    }
+    
+    /**
+     * Count search results
+     */
+    public function countSearchResults($query) {
+        $searchTerm = '%' . $query . '%';
+        
+        $stmt = $this->db->prepare("
+            SELECT COUNT(*) as total
+            FROM products
+            WHERE (name LIKE ? OR description LIKE ? OR brand LIKE ? OR sku LIKE ?)
+        ");
+        
+        $stmt->execute([$searchTerm, $searchTerm, $searchTerm, $searchTerm]);
+        $result = $stmt->fetch();
+        
+        return (int) $result['total'];
     }
 
     public function getFeatured($limit = 8) {
@@ -245,6 +321,14 @@ class Product extends Model {
         $result = $stmt->fetch();
         
         return (int) $result['total'];
+    }
+    
+    /**
+     * Update product stock quantity
+     */
+    public function updateStock($productId, $newStock) {
+        $stmt = $this->db->prepare("UPDATE products SET stock_quantity = ? WHERE id = ?");
+        return $stmt->execute([$newStock, $productId]);
     }
 
 }

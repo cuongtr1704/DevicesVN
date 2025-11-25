@@ -47,8 +47,14 @@ return [
     'forgot-password' => ['controller' => 'AuthController', 'action' => 'forgotPassword'],
     
     // ==================== DASHBOARD ROUTES ====================
-    'dashboard' => ['controller' => 'DashboardController', 'method' => 'index'],
-    'dashboard/profile' => ['controller' => 'DashboardController', 'method' => 'profile'],
+    'dashboard' => ['controller' => 'DashboardController', 'action' => 'index'],
+    'dashboard/profile' => ['controller' => 'DashboardController', 'action' => 'profile'],
+    'dashboard/wishlist' => ['controller' => 'WishlistController', 'action' => 'index'],
+    
+    // ==================== WISHLIST ROUTES ====================
+    'wishlist/add' => ['controller' => 'WishlistController', 'action' => 'add'],
+    'wishlist/remove' => ['controller' => 'WishlistController', 'action' => 'remove'],
+    'wishlist/toggle' => ['controller' => 'WishlistController', 'action' => 'toggle'],
     
     // Password reset with token (e.g., /reset-password/abc123xyz)
     // :token = unique token sent to user's email
@@ -65,9 +71,22 @@ return [
     'cart/add' => ['controller' => 'CartController', 'action' => 'add'],
     'cart/update' => ['controller' => 'CartController', 'action' => 'update'],
     'cart/remove' => ['controller' => 'CartController', 'action' => 'remove'],
-    'checkout' => ['controller' => 'CheckoutController', 'action' => 'index'],
-    'checkout/process' => ['controller' => 'CheckoutController', 'action' => 'process'],
-    'checkout/success' => ['controller' => 'CheckoutController', 'action' => 'success'],
+    'cart/count' => ['controller' => 'CartController', 'action' => 'getCount'],
+    
+    // ==================== ORDER ROUTES ====================
+    'orders' => ['controller' => 'OrderController', 'action' => 'index'],
+    'orders/checkout' => ['controller' => 'OrderController', 'action' => 'checkout'],
+    'orders/process' => ['controller' => 'OrderController', 'action' => 'process'],
+    'orders/detail/:id' => ['controller' => 'OrderController', 'action' => 'detail'],
+    'orders/cancel' => ['controller' => 'OrderController', 'action' => 'cancel'],
+    'dashboard/orders' => ['controller' => 'OrderController', 'action' => 'index'],
+    
+    'checkout' => ['controller' => 'OrderController', 'action' => 'checkout'],
+    'checkout/process' => ['controller' => 'OrderController', 'action' => 'process'],
+    
+    // ==================== REVIEW ROUTES ====================
+    'reviews/add' => ['controller' => 'ReviewController', 'action' => 'add'],
+    'reviews/delete' => ['controller' => 'ReviewController', 'action' => 'delete'],
     
     // ==================== STORE LOCATIONS ROUTES ====================
     'stores' => ['controller' => 'StoresController', 'action' => 'index'],

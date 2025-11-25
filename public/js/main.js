@@ -29,30 +29,59 @@ $(document).ready(function() {
         }, 300);
     });
     
-    function displaySearchSuggestions(suggestions) {
+    function displaySearchSuggestions(data) {
         const $container = $('#searchSuggestions');
         $container.empty();
+        
+        // Check if suggestions exist in the response
+        const suggestions = data.suggestions || [];
         
         if (suggestions.length === 0) {
             $container.removeClass('show');
             return;
         }
         
-        suggestions.forEach(function(item) {
+        // Create list group
+        const $listGroup = $('<div>').addClass('list-group');
+        
+        suggestions.forEach(function(product) {
+            const price = product.sale_price ? product.sale_price : product.price;
+            // main_image already contains full path from asset() helper  
+            const imageUrl = product.main_image || BASE_URL + 'images/no-image.png';
+            const productUrl = BASE_URL + 'products/' + product.slug;
+            
             const $item = $('<a>')
-                .addClass('search-suggestion-item')
-                .attr('href', item.url)
-                .append($('<img>').attr('src', item.image).attr('alt', item.name))
+                .addClass('list-group-item list-group-item-action')
+                .attr('href', productUrl)
                 .append(
-                    $('<div>')
-                        .append($('<div>').css('font-weight', '500').text(item.name))
-                        .append($('<div>').css({'color': '#0066cc', 'font-size': '14px'}).text(item.price))
+                    $('<div>').addClass('d-flex align-items-center')
+                        .append(
+                            $('<img>')
+                                .attr('src', imageUrl)
+                                .attr('alt', product.name)
+                                .css({
+                                    'width': '50px',
+                                    'height': '50px',
+                                    'object-fit': 'cover',
+                                    'border-radius': '5px'
+                                })
+                                .addClass('me-3')
+                        )
+                        .append(
+                            $('<div>').addClass('flex-grow-1')
+                                .append($('<div>').addClass('fw-bold').text(product.name))
+                                .append($('<small>').addClass('text-muted').text(product.brand || product.category_name || ''))
+                        )
+                        .append(
+                            $('<div>').addClass('text-primary fw-bold')
+                                .text(parseInt(price).toLocaleString() + ' ₫')
+                        )
                 );
             
-            $container.append($item);
+            $listGroup.append($item);
         });
         
-        $container.addClass('show');
+        $container.html($listGroup).addClass('show');
     }
     
     $(document).on('click', function(e) {
@@ -164,4 +193,4 @@ $(document).ready(function() {
     
 });
 
-const BASE_URL = window.location.origin + '/devicesvn/public/';
+const BASE_URL = window.location.origin + '/devicesvn/';

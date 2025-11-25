@@ -56,8 +56,11 @@
                         </form>
                     </div>
                     <div class="col-md-3 text-end">
-                        <a href="#" class="btn btn-outline-primary me-2">
+                        <a href="<?= url('cart') ?>" class="btn btn-outline-primary me-2 position-relative">
                             <i class="fas fa-shopping-cart"></i> Cart
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cartCount" style="display: none;">
+                                0
+                            </span>
                         </a>
                         <?php if (isset($_SESSION['user_id'])): ?>
                             <div class="dropdown d-inline-block">
@@ -191,6 +194,34 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="<?php echo asset('js/main.js'); ?>"></script>
     <script src="<?php echo asset('js/auth-modal.js'); ?>"></script>
+    
+    <script>
+    // Update cart count on page load
+    function updateCartCount() {
+        fetch('<?= url('cart/count') ?>')
+            .then(response => response.json())
+            .then(data => {
+                const cartBadge = document.getElementById('cartCount');
+                if (cartBadge && data.count > 0) {
+                    cartBadge.textContent = data.count;
+                    cartBadge.style.display = 'inline-block';
+                } else if (cartBadge) {
+                    cartBadge.style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Error fetching cart count:', error));
+    }
+    
+    // Update on page load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateCartCount);
+    } else {
+        updateCartCount();
+    }
+    
+    // Listen for cart update events
+    window.addEventListener('cartUpdated', updateCartCount);
+    </script>
     
     <?php require_once __DIR__ . '/modals.php'; ?>
 </body>

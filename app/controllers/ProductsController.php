@@ -54,6 +54,7 @@ class ProductsController extends Controller {
     public function detail($slug) {
         $productModel = $this->model('Product');
         $productImageModel = $this->model('ProductImage');
+        $reviewModel = $this->model('Review');
         
         $product = $productModel->findBySlug($slug);
         
@@ -71,6 +72,24 @@ class ProductsController extends Controller {
         
         $specifications = json_decode($product['specifications'], true);
         
+        // Check if product is in wishlist
+        $inWishlist = false;
+        if ($this->isLoggedIn()) {
+            $wishlistModel = $this->model('Wishlist');
+            $inWishlist = $wishlistModel->isInWishlist($_SESSION['user_id'], $product['id']);
+        }
+        
+        // Get reviews
+        $reviews = $reviewModel->getProductReviews($product['id']);
+        $ratingStats = $reviewModel->getAverageRating($product['id']);
+        $ratingBreakdown = $reviewModel->getRatingBreakdown($product['id']);
+        
+        // Check if user has reviewed this product
+        $hasReviewed = false;
+        if ($this->isLoggedIn()) {
+            $hasReviewed = $reviewModel->hasUserReviewed($product['id'], $_SESSION['user_id']);
+        }
+        
         $breadcrumbs = [
             ['label' => 'Products', 'url' => url('products')],
             ['label' => $product['category_name'], 'url' => url('products/category/' . $product['category_slug'])],
@@ -83,7 +102,12 @@ class ProductsController extends Controller {
             'images' => $images,
             'specifications' => $specifications,
             'relatedProducts' => $relatedProducts,
-            'breadcrumbs' => $breadcrumbs
+            'breadcrumbs' => $breadcrumbs,
+            'inWishlist' => $inWishlist,
+            'reviews' => $reviews,
+            'ratingStats' => $ratingStats,
+            'ratingBreakdown' => $ratingBreakdown,
+            'hasReviewed' => $hasReviewed
         ];
         
         $this->view('products/detail', $data);

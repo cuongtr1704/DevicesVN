@@ -33,6 +33,12 @@ class AuthController extends Controller {
                     $_SESSION['user_name'] = $user['full_name'];
                     $_SESSION['user_role'] = $user['role'];
                     
+                    // Transfer guest cart to user cart
+                    if (isset($_SESSION['cart_session_id'])) {
+                        $cartModel = $this->model('Cart');
+                        $cartModel->transferGuestCart($_SESSION['cart_session_id'], $user['id']);
+                    }
+                    
                     // Return JSON for AJAX requests
                     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
                         echo json_encode(['success' => true, 'message' => 'Welcome back, ' . $user['full_name'] . '!']);
@@ -96,6 +102,12 @@ class AuthController extends Controller {
                 ]);
                 
                 if ($userId) {
+                    // Transfer guest cart if exists
+                    if (isset($_SESSION['cart_session_id'])) {
+                        $cartModel = $this->model('Cart');
+                        $cartModel->transferGuestCart($_SESSION['cart_session_id'], $userId);
+                    }
+                    
                     // Return JSON for AJAX requests
                     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
                         echo json_encode(['success' => true, 'message' => 'Registration successful! Please login.']);

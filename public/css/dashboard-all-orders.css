@@ -1,0 +1,115 @@
+/* Dashboard All Orders Page Styles */
+
+/* Filter Pills */
+.nav-pills .nav-link {
+    color: #666;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link:hover {
+    color: #764ba2;
+    background-color: #f8f9fa;
+}
+
+.nav-pills .nav-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+/* Action Buttons */
+.btn-square {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn-square:hover {
+    transform: scale(1.1);
+}
+
+/* Status Badge Select */
+.badge-select {
+    cursor: pointer;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.875rem;
+    border: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.badge-select:focus {
+    box-shadow: none;
+    outline: 2px solid rgba(102, 126, 234, 0.3);
+    outline-offset: 2px;
+}
+
+.badge-select:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+}
+
+/* Table */
+.table-hover tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Badge Colors */
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.badge.bg-info {
+    background-color: #0dcaf0 !important;
+}
+
+.badge.bg-primary {
+    background-color: #0d6efd !important;
+}
+
+.badge.bg-success {
+    background-color: #198754 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .nav-pills {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .nav-pills .nav-link {
+        white-space: nowrap;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.875rem;
+    }
+    
+    .table {
+        font-size: 0.875rem;
+    }
+    
+    .btn-square {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .badge-select {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+}

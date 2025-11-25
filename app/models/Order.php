@@ -127,7 +127,7 @@ class Order extends Model {
      */
     public function getAll($orderBy = 'o.created_at DESC', $limit = null) {
         $query = "
-            SELECT o.*, u.name as customer_name, u.email as customer_email,
+            SELECT o.*, u.full_name as customer_name, u.email as customer_email,
             COUNT(oi.id) as item_count
             FROM orders o
             LEFT JOIN users u ON o.user_id = u.id

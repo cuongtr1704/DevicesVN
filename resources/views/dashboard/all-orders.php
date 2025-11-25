@@ -1,6 +1,7 @@
 <?php require_once __DIR__ . '/../components/breadcrumb.php'; ?>
 
 <link rel="stylesheet" href="<?= asset('css/dashboard.css') ?>">
+<link rel="stylesheet" href="<?= asset('css/dashboard-all-orders.css') ?>">
 
 <div class="container-fluid my-4">
     <div class="row">
@@ -11,9 +12,9 @@
         <div class="col-md-9">
             <div class="dashboard-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="mb-0">
+                    <h2 class="mb-0">
                         <i class="fas fa-shopping-cart me-2"></i>All Orders
-                    </h3>
+                    </h2>
                     <div>
                         <span class="badge bg-primary fs-6 px-3 py-2">
                             Total: <?= count($orders) ?> Orders
@@ -122,80 +123,9 @@
     </div>
 </div>
 
-<style>
-.btn-square {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-}
-
-.badge-select {
-    cursor: pointer;
-    padding: 0.35rem 0.65rem;
-    font-size: 0.875rem;
-}
-
-.badge-select:focus {
-    box-shadow: none;
-}
-
-.nav-pills .nav-link {
-    color: #666;
-    border-radius: 20px;
-    padding: 0.5rem 1rem;
-}
-
-.nav-pills .nav-link.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-</style>
-
 <script src="<?= asset('js/dashboard.js') ?>"></script>
-
 <script>
-function updateOrderStatus(orderId, newStatus) {
-    if (!confirm('Are you sure you want to update the order status?')) {
-        location.reload();
-        return;
-    }
-    
-    // AJAX request to update status
-    fetch('<?= url("api/orders/update-status") ?>', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            order_id: orderId,
-            status: newStatus
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Update the select background color
-            const select = event.target;
-            const colors = {
-                'pending': 'warning',
-                'confirmed': 'info',
-                'shipped': 'primary',
-                'delivered': 'success',
-                'cancelled': 'danger'
-            };
-            select.style.backgroundColor = `var(--bs-${colors[newStatus]})`;
-        } else {
-            alert('Failed to update order status');
-            location.reload();
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred');
-        location.reload();
-    });
-}
+// Set the API URL as a global variable for dashboard-all-orders.js
+window.updateOrderStatusUrl = '<?= url("api/orders/update-status") ?>';
 </script>
+<script src="<?= asset('js/dashboard-all-orders.js') ?>"></script>

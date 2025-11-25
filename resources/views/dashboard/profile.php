@@ -1,6 +1,7 @@
 <?php require_once __DIR__ . '/../components/breadcrumb.php'; ?>
 
 <link rel="stylesheet" href="<?= asset('css/dashboard.css') ?>">
+<link rel="stylesheet" href="<?= asset('css/dashboard-profile.css') ?>">
 
 <div class="container-fluid my-4">
     <div class="row">
@@ -248,220 +249,25 @@ passwordForm.addEventListener('submit', function(e) {
     this.submit();
 });
 
-// Check for password success from PHP
+// Check for password flash message from PHP
 <?php if (isset($_SESSION['flash_password'])): ?>
     <?php 
         $flash = $_SESSION['flash_password'];
         unset($_SESSION['flash_password']);
     ?>
-    passwordSuccessMsg.textContent = '<?= addslashes($flash['message']) ?>';
-    passwordSuccess.style.display = 'block';
-    passwordSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    currentPassword.value = '';
-    newPassword.value = '';
-    confirmPassword.value = '';
+    <?php if ($flash['type'] === 'success'): ?>
+        passwordSuccessMsg.textContent = '<?= addslashes($flash['message']) ?>';
+        passwordSuccess.style.display = 'block';
+        passwordSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        currentPassword.value = '';
+        newPassword.value = '';
+        confirmPassword.value = '';
+    <?php else: ?>
+        passwordErrorMsg.innerHTML = '<?= addslashes($flash['message']) ?>';
+        passwordError.style.display = 'block';
+        passwordError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    <?php endif; ?>
 <?php endif; ?>
 </script>
 
 <script src="<?= asset('js/dashboard.js') ?>"></script>
-
-<style>
-.dashboard-sidebar {
-    background: white;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    position: sticky;
-    top: 20px;
-}
-
-.dashboard-nav .nav-link {
-    color: #333;
-    padding: 12px 16px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.dashboard-nav .nav-link:hover {
-    background: #f8f9fa;
-    color: #2F1067;
-    transform: translateX(5px);
-}
-
-.dashboard-nav .nav-link.active {
-    background: linear-gradient(135deg, #2F1067, #151C32);
-    color: white;
-    box-shadow: 0 2px 8px rgba(47, 16, 103, 0.3);
-}
-
-.dashboard-content {
-    background: white;
-    border-radius: 12px;
-    padding: 35px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-.profile-card, .password-card {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    transition: all 0.3s ease;
-}
-
-.profile-card:hover, .password-card:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-}
-
-.card-header {
-    background: linear-gradient(135deg, #f8f9fa, #ffffff);
-    border-bottom: 2px solid #e9ecef;
-    padding: 20px 25px;
-    border-radius: 12px 12px 0 0 !important;
-}
-
-.card-header h5 {
-    color: #2F1067;
-    font-weight: 600;
-}
-
-.card-body {
-    padding: 30px 25px;
-}
-
-.form-label {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 8px;
-}
-
-.form-control {
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    padding: 10px 15px;
-    transition: all 0.3s ease;
-}
-
-.form-control:focus {
-    border-color: #2F1067;
-    box-shadow: 0 0 0 0.2rem rgba(47, 16, 103, 0.15);
-}
-
-.form-control:disabled {
-    background-color: #f8f9fa;
-    cursor: not-allowed;
-}
-
-textarea.form-control {
-    resize: vertical;
-}
-
-.btn {
-    padding: 10px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #2F1067, #151C32);
-    border: none;
-}
-
-.btn-primary:hover {
-    background: linear-gradient(135deg, #1a0a3d, #0a0f1f);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(47, 16, 103, 0.3);
-}
-
-.btn-outline-primary {
-    color: #2F1067;
-    border: 2px solid #2F1067;
-}
-
-.btn-outline-primary:hover {
-    background: #2F1067;
-    color: white;
-    transform: translateY(-2px);
-}
-
-.btn-secondary {
-    background: #6c757d;
-    border: none;
-}
-
-.btn-secondary:hover {
-    background: #5a6268;
-    transform: translateY(-2px);
-}
-
-.btn-warning {
-    background: linear-gradient(135deg, #ffc107, #ff9800);
-    border: none;
-    color: #000;
-}
-
-.btn-warning:hover {
-    background: linear-gradient(135deg, #ff9800, #f57c00);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
-}
-
-.custom-alert {
-    padding: 15px 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: flex-start;
-    font-weight: 500;
-    animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.custom-alert-success {
-    background: linear-gradient(135deg, #d4edda, #c3e6cb);
-    color: #155724;
-    border-left: 4px solid #28a745;
-}
-
-.custom-alert-danger {
-    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-    color: #721c24;
-    border-left: 4px solid #dc3545;
-}
-
-.custom-alert i {
-    font-size: 20px;
-    margin-top: 2px;
-}
-
-.password-hint {
-    color: #6c757d;
-    font-size: 0.875rem;
-    margin-top: 5px;
-}
-
-.user-info .avatar-circle {
-    transition: all 0.3s ease;
-}
-
-.user-info .avatar-circle:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(47, 16, 103, 0.3);
-}
-
-#profileActions {
-    margin-top: 15px;
-}
-</style>

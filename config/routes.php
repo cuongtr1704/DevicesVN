@@ -99,6 +99,13 @@ return [
     // :slug = store name in URL format
     'stores/:slug' => ['controller' => 'StoresController', 'action' => 'detail'],
     
+    // ==================== PRODUCT API ROUTES (ADMIN) ====================
+    'dashboard/products/view/:id' => ['controller' => 'DashboardController', 'action' => 'viewProduct'],
+    'dashboard/products/add' => ['controller' => 'DashboardController', 'action' => 'addProduct'],
+    'dashboard/products/update/:id' => ['controller' => 'DashboardController', 'action' => 'updateProduct'],
+    'dashboard/products/delete/:id' => ['controller' => 'DashboardController', 'action' => 'deleteProduct'],
+    'dashboard/categories/list' => ['controller' => 'DashboardController', 'action' => 'getCategories'],
+    
     // ==================== STATIC PAGE ROUTES ====================
     'privacy-policy' => ['controller' => 'PageController', 'action' => 'privacyPolicy'],
     'terms-of-service' => ['controller' => 'PageController', 'action' => 'termsOfService'],

@@ -4,7 +4,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('dashboardSidebar');
     const overlay = document.getElementById('sidebarOverlay');
     
-    if (!menuToggle || !sidebar || !overlay) return;
+    if (!menuToggle || !sidebar || !overlay) {
+        console.warn('Dashboard sidebar elements not found');
+        return;
+    }
     
     // Toggle sidebar
     function toggleSidebar() {

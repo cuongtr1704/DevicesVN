@@ -87,4 +87,60 @@ class Category extends Model {
         
         return $breadcrumb;
     }
+    
+    /**
+     * Get max sort order
+     */
+    public function getMaxSortOrder() {
+        $sql = "SELECT MAX(sort_order) as max_order FROM {$this->table}";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetch();
+        return (int)($result['max_order'] ?? 0);
+    }
+    
+    /**
+     * Adjust sort orders for other categories
+     */
+    public function adjustSortOrders($newSortOrder, $action, $currentId = null, $oldSortOrder = null) {
+        if ($action === 'insert') {
+            // Shift all categories with sort_order >= newSortOrder up by 1
+            $sql = "UPDATE {$this->table} SET sort_order = sort_order + 1 WHERE sort_order >= ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$newSortOrder]);
+        } elseif ($action === 'delete' && $oldSortOrder !== null) {
+            // Shift all categories with sort_order > deleted item down by 1
+            $sql = "UPDATE {$this->table} SET sort_order = sort_order - 1 WHERE sort_order > ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$oldSortOrder]);
+        } elseif ($action === 'update' && $currentId) {
+            if ($newSortOrder < $oldSortOrder) {
+                // Moving up: shift categories between new and old position down
+                $sql = "UPDATE {$this->table} SET sort_order = sort_order + 1 WHERE sort_order >= ? AND sort_order < ? AND id != ?";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute([$newSortOrder, $oldSortOrder, $currentId]);
+            } elseif ($newSortOrder > $oldSortOrder) {
+                // Moving down: shift categories between old and new position up
+                $sql = "UPDATE {$this->table} SET sort_order = sort_order - 1 WHERE sort_order > ? AND sort_order <= ? AND id != ?";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute([$oldSortOrder, $newSortOrder, $currentId]);
+            }
+        }
+    }
+    
+    /**
+     * Reorder all categories sequentially (cleanup gaps)
+     */
+    public function reorderSequentially() {
+        $sql = "SELECT id FROM {$this->table} ORDER BY sort_order ASC, id ASC";
+        $stmt = $this->db->query($sql);
+        $categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        $updateSql = "UPDATE {$this->table} SET sort_order = ? WHERE id = ?";
+        $updateStmt = $this->db->prepare($updateSql);
+        
+        foreach ($categories as $index => $categoryId) {
+            $updateStmt->execute([$index + 1, $categoryId]);
+        }
+    }
 }

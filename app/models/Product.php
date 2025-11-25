@@ -330,5 +330,23 @@ class Product extends Model {
         $stmt = $this->db->prepare("UPDATE products SET stock_quantity = ? WHERE id = ?");
         return $stmt->execute([$newStock, $productId]);
     }
+    
+    /**
+     * Count products by category IDs (including children)
+     */
+    public function countByCategoryIds($categoryIds) {
+        if (empty($categoryIds)) {
+            return 0;
+        }
+        
+        $placeholders = implode(',', array_fill(0, count($categoryIds), '?'));
+        $sql = "SELECT COUNT(*) as count FROM {$this->table} WHERE category_id IN ({$placeholders})";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($categoryIds);
+        $result = $stmt->fetch();
+        
+        return (int)$result['count'];
+    }
 
 }

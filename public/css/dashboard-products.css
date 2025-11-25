@@ -1,0 +1,100 @@
+/* Dashboard Products Page Styles */
+
+/* Action Buttons - Vertical Group */
+.btn-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.btn-group-vertical .btn {
+    width: 32px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+}
+
+.btn-group-vertical .btn:first-child {
+    border-radius: 6px 6px 0 0;
+}
+
+.btn-group-vertical .btn:last-child {
+    border-radius: 0 0 6px 6px;
+}
+
+.btn-group-vertical .btn:only-child {
+    border-radius: 6px;
+}
+
+.btn-group-vertical .btn:not(:first-child):not(:last-child) {
+    border-radius: 0;
+}
+
+.btn-group-vertical .btn:hover {
+    transform: scale(1.05);
+    z-index: 1;
+}
+
+/* Action Buttons Square (Legacy) */
+.btn-square {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn-square:hover {
+    transform: scale(1.1);
+}
+
+/* Product Table */
+.table-hover tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.img-thumbnail {
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.img-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+/* Stock Badge */
+.badge {
+    padding: 0.35rem 0.65rem;
+    font-weight: 500;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.875rem;
+    }
+    
+    .btn-square {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .img-thumbnail {
+        width: 50px !important;
+        height: 50px !important;
+    }
+}

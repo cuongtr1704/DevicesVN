@@ -1,6 +1,7 @@
 <?php require_once __DIR__ . '/../components/breadcrumb.php'; ?>
 
 <link rel="stylesheet" href="<?= asset('css/dashboard.css') ?>">
+<link rel="stylesheet" href="<?= asset('css/dashboard-products.css') ?>">
 
 <div class="container-fluid my-4">
     <div class="row">
@@ -11,10 +12,10 @@
         <div class="col-md-9">
             <div class="dashboard-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="mb-0">
+                    <h2 class="mb-0">
                         <i class="fas fa-box me-2"></i>Manage Products
-                    </h3>
-                    <button class="btn btn-primary">
+                    </h2>
+                    <button class="btn btn-primary" onclick="addProduct()">
                         <i class="fas fa-plus me-2"></i>Add Product
                     </button>
                 </div>
@@ -48,13 +49,13 @@
                                                 <br><small class="text-muted">SKU: <?= escape($product['sku']) ?></small>
                                             </td>
                                             <td>
-                                                <strong>$<?= number_format($product['price'], 2) ?></strong>
+                                                <strong><?= number_format($product['price']) ?> VND</strong>
                                             </td>
                                             <td>
-                                                <?php if ($product['stock'] > 10): ?>
-                                                    <span class="badge bg-success"><?= $product['stock'] ?></span>
-                                                <?php elseif ($product['stock'] > 0): ?>
-                                                    <span class="badge bg-warning text-dark"><?= $product['stock'] ?></span>
+                                                <?php if ($product['stock_quantity'] > 10): ?>
+                                                    <span class="badge bg-success"><?= $product['stock_quantity'] ?></span>
+                                                <?php elseif ($product['stock_quantity'] > 0): ?>
+                                                    <span class="badge bg-warning text-dark"><?= $product['stock_quantity'] ?></span>
                                                 <?php else: ?>
                                                     <span class="badge bg-danger">Out of Stock</span>
                                                 <?php endif; ?>
@@ -63,18 +64,23 @@
                                                 <small><?= escape($product['category_name']) ?></small>
                                             </td>
                                             <td class="text-center">
-                                                <a href="<?= url('products/' . $product['id']) ?>" 
-                                                   class="btn btn-sm btn-square btn-info me-1" 
-                                                   title="View"
-                                                   target="_blank">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <button class="btn btn-sm btn-square btn-warning me-1" title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-square btn-danger" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
+                                                <div class="btn-group-vertical" role="group">
+                                                    <button class="btn btn-sm btn-info" 
+                                                            onclick="viewProduct(<?= $product['id'] ?>)" 
+                                                            title="View">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-warning" 
+                                                            onclick="editProduct(<?= $product['id'] ?>)" 
+                                                            title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger" 
+                                                            onclick="deleteProduct(<?= $product['id'] ?>, '<?= escape($product['name']) ?>')" 
+                                                            title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -126,16 +132,114 @@
     </div>
 </div>
 
-<style>
-.btn-square {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-}
-</style>
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle me-2"></i>Add New Product
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="addProductContent">
+                <!-- Content loaded by JS -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveNewProduct()">
+                    <i class="fas fa-save me-2"></i>Add Product
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Product Modal -->
+<div class="modal fade" id="viewProductModal" tabindex="-1" aria-labelledby="viewProductModalLabel">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye me-2"></i>Product Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="viewProductContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Product Modal -->
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Edit Product
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="editProductContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveProductChanges()">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center pt-0">
+                <div class="mb-3">
+                    <i class="fas fa-exclamation-triangle fa-4x text-warning"></i>
+                </div>
+                <h5 class="mb-3">Delete Product?</h5>
+                <p class="text-muted mb-0" id="deleteProductMessage"></p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-2"></i>Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="<?= asset('js/dashboard.js') ?>"></script>
+<script>
+window.productsUrl = '<?= url('dashboard/products') ?>';
+</script>
+<script src="<?= asset('js/dashboard-products.js') ?>"></script>

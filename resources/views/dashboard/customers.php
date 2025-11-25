@@ -1,6 +1,7 @@
 <?php require_once __DIR__ . '/../components/breadcrumb.php'; ?>
 
 <link rel="stylesheet" href="<?= asset('css/dashboard.css') ?>">
+<link rel="stylesheet" href="<?= asset('css/dashboard-customers.css') ?>">
 
 <div class="container-fluid my-4">
     <div class="row">
@@ -11,9 +12,9 @@
         <div class="col-md-9">
             <div class="dashboard-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="mb-0">
+                    <h2 class="mb-0">
                         <i class="fas fa-users me-2"></i>Manage Customers
-                    </h3>
+                    </h2>
                     <div>
                         <span class="badge bg-primary fs-6 px-3 py-2">
                             Total: <?= count($customers) ?> Customers
@@ -115,28 +116,5 @@
     </div>
 </div>
 
-<style>
-.btn-square {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-}
-</style>
-
 <script src="<?= asset('js/dashboard.js') ?>"></script>
-
-<script>
-function viewCustomer(id) {
-    // Placeholder for view functionality
-    alert('View customer #' + id + ' details');
-}
-
-function editCustomer(id) {
-    // Placeholder for edit functionality
-    alert('Edit customer #' + id);
-}
-</script>
+<script src="<?= asset('js/dashboard-customers.js') ?>"></script>

@@ -39,11 +39,11 @@
             <label class="form-label fw-bold"><i class="fas fa-sort me-2"></i>Sort By</label>
             <form method="GET" action="">
                 <select name="sort" class="form-select" onchange="this.form.submit()">
+                    <option value="p.updated_at DESC" <?= ($currentSort ?? '') == 'p.updated_at DESC' ? 'selected' : '' ?>>
+                        Newest First
+                    </option>
                     <option value="p.views DESC" <?= ($currentSort ?? '') == 'p.views DESC' ? 'selected' : '' ?>>
                         Most Popular
-                    </option>
-                    <option value="p.created_at DESC" <?= ($currentSort ?? '') == 'p.created_at DESC' ? 'selected' : '' ?>>
-                        Newest First
                     </option>
                     <option value="p.name ASC" <?= ($currentSort ?? '') == 'p.name ASC' ? 'selected' : '' ?>>
                         Name (A-Z)

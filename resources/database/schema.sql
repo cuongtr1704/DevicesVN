@@ -54,6 +54,7 @@ CREATE TABLE products (
     is_featured BOOLEAN DEFAULT FALSE,
     views INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -187,7 +188,7 @@ INSERT INTO categories (name, slug, description, icon, parent_id, is_active, sor
 -- Admin User (password: admin123)
 -- Password security: HMAC-SHA256(password, pepper) + BCrypt(cost=12)
 INSERT INTO users (full_name, email, password, role) VALUES
-('DevicesVN Admin', 'admin@devicesvn.com', '$2y$12$aGAdLHr01usCVh.Cwl4ZnOq7UKhf0t6XvRKUvb8x9S9.jyma6Ja.C', 'admin');
+('DevicesVN Admin', 'admin@devicesvn.com', '$2y$10$jq52Y7vw9GKnKfW.7aV6XuDs5ud3oQc03LXlXQz97cB.fanWF2MSC', 'admin');
 
 -- Stores
 INSERT INTO stores (name, slug, address, city, phone, latitude, longitude) VALUES

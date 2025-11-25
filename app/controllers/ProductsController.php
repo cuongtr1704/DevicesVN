@@ -11,7 +11,7 @@ class ProductsController extends Controller {
         
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $categoryId = isset($_GET['category']) ? (int)$_GET['category'] : null;
-        $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'id DESC';
+        $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'p.updated_at DESC';
         $minPrice = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? (int)$_GET['min_price'] : null;
         $maxPrice = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? (int)$_GET['max_price'] : null;
         
@@ -102,7 +102,7 @@ class ProductsController extends Controller {
         }
         
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'id DESC';
+        $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'p.updated_at DESC';
         $minPrice = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? (int)$_GET['min_price'] : null;
         $maxPrice = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? (int)$_GET['max_price'] : null;
         
@@ -148,7 +148,7 @@ class ProductsController extends Controller {
         $categoryModel = $this->model('Category');
         
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'p.views DESC';
+        $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'p.updated_at DESC';
         $minPrice = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? (int)$_GET['min_price'] : null;
         $maxPrice = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? (int)$_GET['max_price'] : null;
         

@@ -24,8 +24,7 @@
                     </div>
                     <div class="col-md-6 text-end">
                         <?php if (isset($_SESSION['user_id'])): ?>
-                            <small>Welcome, <?php echo escape($_SESSION['user_name']); ?>!</small>
-                            <a href="<?php echo url('auth/logout'); ?>" class="text-white ms-3"><small>Logout</small></a>
+                            <small></i>Welcome, <?php echo escape($_SESSION['user_name']); ?>!</small>
                         <?php else: ?>
                             <a href="javascript:void(0)" onclick="openLoginModal()" class="text-white"><small>Login</small></a>
                             <a href="javascript:void(0)" onclick="openRegisterModal()" class="text-white ms-3"><small>Register</small></a>
@@ -57,9 +56,21 @@
                         </form>
                     </div>
                     <div class="col-md-3 text-end">
-                        <a href="#" class="btn btn-outline-primary">
+                        <a href="#" class="btn btn-outline-primary me-2">
                             <i class="fas fa-shopping-cart"></i> Cart
                         </a>
+                        <?php if (isset($_SESSION['user_id'])): ?>
+                            <div class="dropdown d-inline-block">
+                                <a href="#" class="text-decoration-none" id="userAvatarDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #2F1067, #151C32); color: white; border-radius: 50%; font-weight: 600; font-size: 16px;" title="<?php echo escape($_SESSION['user_name']); ?>">
+                                    <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="<?php echo url('dashboard'); ?>"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="<?php echo url('logout'); ?>"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

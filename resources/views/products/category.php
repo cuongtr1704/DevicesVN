@@ -43,7 +43,7 @@
                     <input type="hidden" name="category" value="<?= $_GET['category'] ?>">
                 <?php endif; ?>
                 <select name="sort" class="form-select" onchange="this.form.submit()">
-                    <option value="p.created_at DESC" <?= ($currentSort ?? '') == 'p.created_at DESC' ? 'selected' : '' ?>>
+                    <option value="p.updated_at DESC" <?= ($currentSort ?? '') == 'p.updated_at DESC' ? 'selected' : '' ?>>
                         Newest First
                     </option>
                     <option value="p.name ASC" <?= ($currentSort ?? '') == 'p.name ASC' ? 'selected' : '' ?>>
@@ -106,7 +106,7 @@
                         <input type="hidden" name="category" value="<?= $_GET['category'] ?>">
                     <?php endif; ?>
                     <select name="sort" class="form-select" onchange="this.form.submit()">
-                        <option value="p.created_at DESC" <?= ($currentSort ?? '') == 'p.created_at DESC' ? 'selected' : '' ?>>
+                        <option value="p.updated_at DESC" <?= ($currentSort ?? '') == 'p.updated_at DESC' ? 'selected' : '' ?>>
                             Newest First
                         </option>
                         <option value="p.name ASC" <?= ($currentSort ?? '') == 'p.name ASC' ? 'selected' : '' ?>>

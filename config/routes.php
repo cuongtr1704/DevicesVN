@@ -41,8 +41,14 @@ return [
     
     // ==================== AUTHENTICATION ROUTES ====================
     // Note: Login/Register now handled via modals, but keep POST endpoints for form submission
+    'auth/login' => ['controller' => 'AuthController', 'action' => 'login'],
+    'auth/register' => ['controller' => 'AuthController', 'action' => 'register'],
     'logout' => ['controller' => 'AuthController', 'action' => 'logout'],
     'forgot-password' => ['controller' => 'AuthController', 'action' => 'forgotPassword'],
+    
+    // ==================== DASHBOARD ROUTES ====================
+    'dashboard' => ['controller' => 'DashboardController', 'method' => 'index'],
+    'dashboard/profile' => ['controller' => 'DashboardController', 'method' => 'profile'],
     
     // Password reset with token (e.g., /reset-password/abc123xyz)
     // :token = unique token sent to user's email

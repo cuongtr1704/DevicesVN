@@ -9,12 +9,24 @@ class User extends Model {
     protected $table = 'users';
 
     public function register($data) {
-        $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-        $data['verification_token'] = bin2hex(random_bytes(32));
+        $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
+        
+        $sql = "INSERT INTO {$this->table} (full_name, email, password, phone, address, role) 
+                VALUES (?, ?, ?, ?, ?, ?)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(1, $data['full_name']);
+        $stmt->bindValue(2, $data['email']);
+        $stmt->bindValue(3, $hashedPassword);
+        $stmt->bindValue(4, $data['phone'] ?? null);
+        $stmt->bindValue(5, $data['address'] ?? null);
+        $stmt->bindValue(6, $data['role'] ?? 'customer');
         
         try {
-            return $this->insert($data);
+            $stmt->execute();
+            return $this->db->lastInsertId();
         } catch (PDOException $e) {
+            error_log("Registration error: " . $e->getMessage());
             return false;
         }
     }

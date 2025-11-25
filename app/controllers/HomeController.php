@@ -23,7 +23,7 @@ class HomeController extends Controller {
 
     public function about() {
         $data = ['title' => 'About Us - ' . APP_NAME];
-        $this->view('home/about', $data);
+        $this->view('about/index', $data);
     }
 
     public function contact() {
@@ -52,6 +52,24 @@ class HomeController extends Controller {
         }
         
         $this->view('home/contact', $data);
+    }
+
+    public function categories() {
+        $categoryModel = $this->model('Category');
+        $categories = $categoryModel->getActive();
+        
+        $breadcrumbs = [
+            ['label' => 'Home', 'url' => url('')],
+            ['label' => 'Categories', 'url' => '']
+        ];
+        
+        $data = [
+            'title' => 'All Categories - ' . APP_NAME,
+            'categories' => $categories,
+            'breadcrumbs' => $breadcrumbs
+        ];
+        
+        $this->view('categories/index', $data);
     }
 
     /**

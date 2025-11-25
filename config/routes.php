@@ -18,10 +18,14 @@ return [
     'home' => ['controller' => 'HomeController', 'action' => 'index'],
     'about' => ['controller' => 'HomeController', 'action' => 'about'],
     'contact' => ['controller' => 'HomeController', 'action' => 'contact'],
+    'categories' => ['controller' => 'HomeController', 'action' => 'categories'],
     
     // ==================== PRODUCT ROUTES ====================
     // All products page
     'products' => ['controller' => 'ProductsController', 'action' => 'index'],
+    
+    // Featured products page
+    'products/featured' => ['controller' => 'ProductsController', 'action' => 'featured'],
     
     // Product by category (e.g., /products/category/laptops)
     // :slug = category name in URL format (laptops, phones, gaming-laptops)

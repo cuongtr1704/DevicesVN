@@ -144,6 +144,30 @@
     text-decoration: none;
 }
 
+/* More Categories Card - Special styling */
+.more-categories-card {
+    background: linear-gradient(135deg, var(--indigo-ink) 0%, var(--prussian-blue) 100%) !important;
+    border: 2px solid var(--indigo-ink) !important;
+}
+
+.more-categories-card .card-body {
+    color: var(--white);
+}
+
+.more-categories-card i {
+    color: var(--white) !important;
+}
+
+.more-categories-card .card-title {
+    color: var(--white) !important;
+}
+
+.more-categories-card:hover {
+    background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--indigo-ink) 100%) !important;
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(47, 16, 103, 0.3) !important;
+}
+
 /* ============================================================
    Featured Products Section
    ============================================================ */
@@ -173,18 +197,21 @@
 }
 
 .featured-products .card {
-    border: none;
-    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
     overflow: hidden;
-    transition: all 0.4s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     background-color: var(--white);
     height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .featured-products .card:hover {
-    transform: translateY(-12px);
-    box-shadow: 0 20px 40px rgba(47, 16, 103, 0.25);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(47, 16, 103, 0.12);
+    border-color: rgba(47, 16, 103, 0.2);
 }
 
 .featured-products .card-img-top {
@@ -235,7 +262,7 @@
 }
 
 .featured-products .price {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     margin-bottom: 1.2rem;
 }
 
@@ -395,6 +422,106 @@
     
     .categories-section .card-body {
         padding: 2rem 1rem;
+    }
+    
+    /* Mobile card improvements - 1 per line, vertical layout with square image */
+    .featured-products .row {
+        margin: 0;
+    }
+    
+    .featured-products .col-md-4,
+    .featured-products .col-lg-3 {
+        width: 100%;
+        max-width: 100%;
+        flex: 0 0 100%;
+        padding: 0 0.5rem;
+    }
+    
+    .featured-products .card {
+        margin-bottom: 1.25rem;
+        flex-direction: column !important;
+        height: auto;
+        position: relative;
+    }
+    
+    /* Square image for mobile */
+    .featured-products .card .position-relative {
+        position: relative;
+        width: 100%;
+        padding-top: 100%; /* 1:1 Aspect Ratio - Square */
+        overflow: hidden;
+    }
+    
+    .featured-products .card-img-top {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .featured-products .card-body {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    
+    .featured-products .card-title {
+        font-size: 0.95rem;
+        min-height: auto;
+        margin-bottom: 0.4rem;
+        line-height: 1.3;
+    }
+    
+    .featured-products .card-title a {
+        -webkit-line-clamp: 2;
+    }
+    
+    .featured-products .card-text {
+        font-size: 0.85rem;
+        min-height: auto;
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.4;
+    }
+    
+    .featured-products .price {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .featured-products .price .text-muted {
+        font-size: 0.9rem;
+    }
+    
+    /* Sale badge on image corner */
+    .featured-products .badge {
+        font-size: 0.85rem;
+        padding: 6px 10px;
+        font-weight: 700;
+    }
+    
+    .featured-products .btn {
+        padding: 0.6rem 1.25rem;
+        font-size: 0.9rem;
+        width: 100%;
+    }
+    
+    /* View Details button */
+    .featured-products .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        width: 100%;
+        margin-top: auto;
+    }
+    
+    .featured-products .card:hover {
+        transform: translateY(-2px);
     }
     
     .newsletter-section {

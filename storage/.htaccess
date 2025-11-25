@@ -1,0 +1,10 @@
+# Allow access to uploads folder
+<IfModule mod_rewrite.c>
+    RewriteEngine Off
+</IfModule>
+
+# Allow images to be served
+<FilesMatch "\.(jpg|jpeg|png|gif|svg|webp)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>

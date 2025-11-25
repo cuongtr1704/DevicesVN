@@ -16,6 +16,10 @@ function url($path = '') {
 }
 
 function asset($path) {
+    // Handle storage/uploads paths - these need special handling
+    if (strpos($path, 'storage/uploads/') === 0) {
+        return BASE_URL . $path;
+    }
     return ASSETS_URL . ltrim($path, '/');
 }
 
@@ -37,8 +41,13 @@ function truncate($text, $length = 100, $suffix = '...') {
 
 function productImage($image) {
     if (empty($image)) {
-        return asset('images/no-image.png');
+        return asset('storage/uploads/no-image.svg');
     }
+    // If image path already starts with storage/uploads, use it directly
+    if (strpos($image, 'storage/uploads/') === 0) {
+        return asset($image);
+    }
+    // Otherwise assume it's in images/products/
     return asset('images/products/' . $image);
 }
 

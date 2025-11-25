@@ -13,6 +13,12 @@ class Controller {
     public function view($view, $data = [], $layout = 'main') {
         extract($data);
 
+        // Load categories globally for navigation
+        if ($layout === 'main') {
+            $categoryModel = $this->model('Category');
+            $navCategories = $categoryModel->getCategoryTree();
+        }
+
         if (file_exists(ROOT_PATH . '/resources/views/' . $view . '.php')) {
             ob_start();
             require_once ROOT_PATH . '/resources/views/' . $view . '.php';

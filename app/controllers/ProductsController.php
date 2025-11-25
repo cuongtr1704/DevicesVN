@@ -12,10 +12,18 @@ class ProductsController extends Controller {
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $categoryId = isset($_GET['category']) ? (int)$_GET['category'] : null;
         $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'id DESC';
+        $minPrice = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? (int)$_GET['min_price'] : null;
+        $maxPrice = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? (int)$_GET['max_price'] : null;
         
         $filters = [];
         if ($categoryId) {
             $filters['category_id'] = $categoryId;
+        }
+        if ($minPrice) {
+            $filters['min_price'] = $minPrice;
+        }
+        if ($maxPrice) {
+            $filters['max_price'] = $maxPrice;
         }
         
         $products = $productModel->getPaginated($page, PRODUCTS_PER_PAGE, $sortBy, $filters);
@@ -23,6 +31,10 @@ class ProductsController extends Controller {
         $totalPages = ceil($totalProducts / PRODUCTS_PER_PAGE);
         
         $categories = $categoryModel->getActive();
+        
+        $breadcrumbs = [
+            ['label' => 'Products', 'url' => '']
+        ];
         
         $data = [
             'title' => 'Products - ' . APP_NAME,
@@ -32,7 +44,8 @@ class ProductsController extends Controller {
             'totalPages' => $totalPages,
             'totalProducts' => $totalProducts,
             'currentCategory' => $categoryId,
-            'currentSort' => $sortBy
+            'currentSort' => $sortBy,
+            'breadcrumbs' => $breadcrumbs
         ];
         
         $this->view('products/index', $data);
@@ -40,7 +53,7 @@ class ProductsController extends Controller {
 
     public function detail($slug) {
         $productModel = $this->model('Product');
-        $categoryModel = $this->model('Category');
+        $productImageModel = $this->model('ProductImage');
         
         $product = $productModel->findBySlug($slug);
         
@@ -50,20 +63,30 @@ class ProductsController extends Controller {
             return;
         }
         
-        $storeAvailability = $productModel->getStoreAvailability($product['id']);
-        $breadcrumb = $categoryModel->getBreadcrumb($product['category_id']);
+        // Get all images for gallery
+        $images = $productImageModel->getProductImages($product['id']);
+        
+        // Get related products (same category)
+        $relatedProducts = $productModel->getPaginated(1, 4, 'RAND()', ['category_id' => $product['category_id']]);
+        
         $specifications = json_decode($product['specifications'], true);
+        
+        $breadcrumbs = [
+            ['label' => 'Products', 'url' => url('products')],
+            ['label' => $product['category_name'], 'url' => url('products/category/' . $product['category_slug'])],
+            ['label' => $product['name'], 'url' => '']
+        ];
         
         $data = [
             'title' => $product['name'] . ' - ' . APP_NAME,
-            'metaDescription' => $product['meta_description'] ?? substr($product['description'], 0, 160),
             'product' => $product,
+            'images' => $images,
             'specifications' => $specifications,
-            'storeAvailability' => $storeAvailability,
-            'breadcrumb' => $breadcrumb
+            'relatedProducts' => $relatedProducts,
+            'breadcrumbs' => $breadcrumbs
         ];
         
-        $this->view('products/view', $data);
+        $this->view('products/detail', $data);
     }
 
     public function category($slug) {
@@ -80,26 +103,86 @@ class ProductsController extends Controller {
         
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'id DESC';
+        $minPrice = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? (int)$_GET['min_price'] : null;
+        $maxPrice = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? (int)$_GET['max_price'] : null;
         
-        $filters = ['category_id' => $category['id']];
+        // Get category IDs - include children if this is a parent category
+        $categoryIds = $categoryModel->getCategoryWithChildren($category['id']);
+        
+        $filters = ['category_ids' => $categoryIds];
+        if ($minPrice) {
+            $filters['min_price'] = $minPrice;
+        }
+        if ($maxPrice) {
+            $filters['max_price'] = $maxPrice;
+        }
         
         $products = $productModel->getPaginated($page, PRODUCTS_PER_PAGE, $sortBy, $filters);
         $totalProducts = $productModel->countFiltered($filters);
         $totalPages = ceil($totalProducts / PRODUCTS_PER_PAGE);
         
-        $breadcrumb = $categoryModel->getBreadcrumb($category['id']);
+        $allCategories = $categoryModel->getActive();
+        
+        $breadcrumbs = [
+            ['label' => 'Products', 'url' => url('products')],
+            ['label' => $category['name'], 'url' => '']
+        ];
         
         $data = [
             'title' => $category['name'] . ' - ' . APP_NAME,
             'category' => $category,
             'products' => $products,
+            'categories' => $allCategories,
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'totalProducts' => $totalProducts,
             'currentSort' => $sortBy,
-            'breadcrumb' => $breadcrumb
+            'breadcrumbs' => $breadcrumbs
         ];
         
         $this->view('products/category', $data);
+    }
+
+    public function featured() {
+        $productModel = $this->model('Product');
+        $categoryModel = $this->model('Category');
+        
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'p.views DESC';
+        $minPrice = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? (int)$_GET['min_price'] : null;
+        $maxPrice = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? (int)$_GET['max_price'] : null;
+        
+        $filters = [];
+        if ($minPrice) {
+            $filters['min_price'] = $minPrice;
+        }
+        if ($maxPrice) {
+            $filters['max_price'] = $maxPrice;
+        }
+        
+        $products = $productModel->getFeaturedPaginated($page, PRODUCTS_PER_PAGE, $sortBy, $filters);
+        $totalProducts = $productModel->countFeatured($filters);
+        $totalPages = ceil($totalProducts / PRODUCTS_PER_PAGE);
+        
+        $allCategories = $categoryModel->getActive();
+        
+        $breadcrumbs = [
+            ['label' => 'Products', 'url' => url('products')],
+            ['label' => 'Featured Products', 'url' => '']
+        ];
+        
+        $data = [
+            'title' => 'Featured Products - ' . APP_NAME,
+            'products' => $products,
+            'categories' => $allCategories,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalProducts' => $totalProducts,
+            'currentSort' => $sortBy,
+            'breadcrumbs' => $breadcrumbs,
+            'isFeaturedPage' => true
+        ];
+        
+        $this->view('products/featured', $data);
     }
 }

@@ -1,0 +1,269 @@
+/* ============================================================
+   DevicesVN - Product Listing Styles
+   ============================================================ */
+
+/* Product Cards */
+.featured-products .card,
+.product-grid .card {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    background-color: #fff;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.featured-products .card:hover,
+.product-grid .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(47, 16, 103, 0.12);
+    border-color: rgba(47, 16, 103, 0.2);
+}
+
+/* Square Image Container */
+.featured-products .card .position-relative,
+.product-grid .card .position-relative {
+    position: relative;
+    width: 100%;
+    padding-top: 100%; /* 1:1 Aspect Ratio - Square */
+    overflow: hidden;
+    background-color: #f8f9fa;
+}
+
+.featured-products .card-img-top,
+.product-grid .card-img-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.featured-products .card:hover .card-img-top,
+.product-grid .card:hover .card-img-top {
+    transform: scale(1.1);
+}
+
+/* Sale Badge */
+.featured-products .badge,
+.product-grid .badge {
+    font-size: 1rem;
+    padding: 10px 15px;
+    z-index: 10;
+    font-weight: 700;
+}
+
+/* Card Body */
+.featured-products .card-body,
+.product-grid .card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.featured-products .card-title,
+.product-grid .card-title {
+    min-height: 48px;
+    margin-bottom: 0.8rem;
+}
+
+.featured-products .card-title a,
+.product-grid .card-title a {
+    color: #151C32;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.featured-products .card-title a:hover,
+.product-grid .card-title a:hover {
+    color: #2F1067;
+}
+
+.featured-products .card-text,
+.product-grid .card-text {
+    min-height: 60px;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Price */
+.featured-products .price,
+.product-grid .price {
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+    margin-top: auto;
+}
+
+.featured-products .text-danger,
+.product-grid .text-danger {
+    color: #dc3545 !important;
+}
+
+/* Button */
+.featured-products .btn-primary,
+.product-grid .btn-primary {
+    background-color: #2F1067;
+    border-color: #2F1067;
+    font-weight: 600;
+    padding: 10px 24px;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.featured-products .btn-primary:hover,
+.product-grid .btn-primary:hover {
+    background-color: #151C32;
+    border-color: #151C32;
+    transform: scale(1.05);
+}
+
+/* ============================================================
+   Mobile Responsive
+   ============================================================ */
+
+@media (max-width: 768px) {
+    /* Mobile card improvements - vertical layout with square image */
+    .featured-products .card,
+    .product-grid .card {
+        margin-bottom: 1.25rem;
+        flex-direction: column !important;
+        height: auto;
+    }
+    
+    /* Square image for mobile */
+    .featured-products .card .position-relative,
+    .product-grid .card .position-relative {
+        position: relative;
+        width: 100%;
+        padding-top: 100%; /* 1:1 Aspect Ratio - Square */
+        overflow: hidden;
+        background-color: #f8f9fa;
+    }
+    
+    .featured-products .card-img-top,
+    .product-grid .card-img-top {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .featured-products .card-body,
+    .product-grid .card-body {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    
+    .featured-products .card-title,
+    .product-grid .card-title {
+        font-size: 0.95rem;
+        min-height: auto;
+        margin-bottom: 0.4rem;
+        line-height: 1.3;
+    }
+    
+    .featured-products .card-title a,
+    .product-grid .card-title a {
+        font-size: 1rem;
+        -webkit-line-clamp: 2;
+    }
+    
+    .featured-products .card-text,
+    .product-grid .card-text {
+        font-size: 0.85rem;
+        min-height: auto;
+        margin-bottom: 0.5rem;
+        -webkit-line-clamp: 2;
+        line-height: 1.4;
+    }
+    
+    .featured-products .price,
+    .product-grid .price {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .featured-products .price .text-muted,
+    .product-grid .price .text-muted {
+        font-size: 0.9rem;
+    }
+    
+    /* Sale badge on image corner */
+    .featured-products .badge,
+    .product-grid .badge {
+        font-size: 0.85rem;
+        padding: 6px 10px;
+        font-weight: 700;
+    }
+    
+    .featured-products .btn,
+    .product-grid .btn {
+        padding: 0.6rem 1.25rem;
+        font-size: 0.9rem;
+        width: 100%;
+    }
+    
+    .featured-products .card:hover,
+    .product-grid .card:hover {
+        transform: translateY(-2px);
+    }
+}
+
+/* iPhone 14 Pro Max and smaller */
+@media (max-width: 430px) {
+    .featured-products .card-title a,
+    .product-grid .card-title a {
+        font-size: 0.95rem;
+    }
+    
+    .featured-products .card-text,
+    .product-grid .card-text {
+        font-size: 0.8rem;
+    }
+    
+    .featured-products .price,
+    .product-grid .price {
+        font-size: 1rem;
+    }
+}
+
+/* iPhone 12/13/14 and smaller */
+@media (max-width: 390px) {
+    .featured-products .card-body,
+    .product-grid .card-body {
+        padding: 0.85rem;
+    }
+    
+    .featured-products .badge,
+    .product-grid .badge {
+        font-size: 0.75rem;
+        padding: 5px 8px;
+    }
+    
+    .featured-products .btn,
+    .product-grid .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+}

@@ -11,33 +11,61 @@ class Product extends Model {
     public function getPaginated($page = 1, $perPage = 12, $orderBy = 'id DESC', $filters = []) {
         $offset = ($page - 1) * $perPage;
         
-        $sql = "SELECT p.*, c.name as category_name 
+        $sql = "SELECT p.*, c.name as category_name, 
+                       pi.image_url as main_image
                 FROM {$this->table} p 
                 LEFT JOIN categories c ON p.category_id = c.id 
+                LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
                 WHERE 1=1";
         
-        $params = [];
+        $bindParams = [];
         
         if (!empty($filters['category_id'])) {
-            $sql .= " AND p.category_id = :category_id";
-            $params[':category_id'] = $filters['category_id'];
+            $sql .= " AND p.category_id = ?";
+            $bindParams[] = $filters['category_id'];
+        }
+        
+        if (!empty($filters['category_ids']) && is_array($filters['category_ids'])) {
+            $placeholders = implode(',', array_fill(0, count($filters['category_ids']), '?'));
+            $sql .= " AND p.category_id IN ($placeholders)";
+            foreach ($filters['category_ids'] as $catId) {
+                $bindParams[] = $catId;
+            }
         }
         
         if (!empty($filters['search'])) {
-            $sql .= " AND (p.name LIKE :search OR p.description LIKE :search)";
-            $params[':search'] = '%' . $filters['search'] . '%';
+            $sql .= " AND (p.name LIKE ? OR p.description LIKE ?)";
+            $searchTerm = '%' . $filters['search'] . '%';
+            $bindParams[] = $searchTerm;
+            $bindParams[] = $searchTerm;
         }
         
-        $sql .= " ORDER BY {$orderBy} LIMIT :limit OFFSET :offset";
+        if (!empty($filters['min_price'])) {
+            $sql .= " AND COALESCE(p.sale_price, p.price) >= ?";
+            $bindParams[] = $filters['min_price'];
+        }
+        
+        if (!empty($filters['max_price'])) {
+            $sql .= " AND COALESCE(p.sale_price, p.price) <= ?";
+            $bindParams[] = $filters['max_price'];
+        }
+        
+        $sql .= " ORDER BY {$orderBy} LIMIT ? OFFSET ?";
+        $bindParams[] = $perPage;
+        $bindParams[] = $offset;
         
         $stmt = $this->db->prepare($sql);
         
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
+        // Bind all parameters positionally
+        $paramIndex = 1;
+        foreach ($bindParams as $param) {
+            if (is_int($param)) {
+                $stmt->bindValue($paramIndex++, $param, PDO::PARAM_INT);
+            } else {
+                $stmt->bindValue($paramIndex++, $param);
+            }
         }
         
-        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
         
         return $stmt->fetchAll();
@@ -46,22 +74,48 @@ class Product extends Model {
     public function countFiltered($filters = []) {
         $sql = "SELECT COUNT(*) as total FROM {$this->table} WHERE 1=1";
         
-        $params = [];
+        $bindParams = [];
         
         if (!empty($filters['category_id'])) {
-            $sql .= " AND category_id = :category_id";
-            $params[':category_id'] = $filters['category_id'];
+            $sql .= " AND category_id = ?";
+            $bindParams[] = $filters['category_id'];
+        }
+        
+        if (!empty($filters['category_ids']) && is_array($filters['category_ids'])) {
+            $placeholders = implode(',', array_fill(0, count($filters['category_ids']), '?'));
+            $sql .= " AND category_id IN ($placeholders)";
+            foreach ($filters['category_ids'] as $catId) {
+                $bindParams[] = $catId;
+            }
         }
         
         if (!empty($filters['search'])) {
-            $sql .= " AND (name LIKE :search OR description LIKE :search)";
-            $params[':search'] = '%' . $filters['search'] . '%';
+            $sql .= " AND (name LIKE ? OR description LIKE ?)";
+            $searchTerm = '%' . $filters['search'] . '%';
+            $bindParams[] = $searchTerm;
+            $bindParams[] = $searchTerm;
+        }
+        
+        if (!empty($filters['min_price'])) {
+            $sql .= " AND COALESCE(sale_price, price) >= ?";
+            $bindParams[] = $filters['min_price'];
+        }
+        
+        if (!empty($filters['max_price'])) {
+            $sql .= " AND COALESCE(sale_price, price) <= ?";
+            $bindParams[] = $filters['max_price'];
         }
         
         $stmt = $this->db->prepare($sql);
         
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
+        // Bind all parameters positionally
+        $paramIndex = 1;
+        foreach ($bindParams as $param) {
+            if (is_int($param)) {
+                $stmt->bindValue($paramIndex++, $param, PDO::PARAM_INT);
+            } else {
+                $stmt->bindValue($paramIndex++, $param);
+            }
         }
         
         $stmt->execute();
@@ -71,9 +125,11 @@ class Product extends Model {
     }
 
     public function findBySlug($slug) {
-        $sql = "SELECT p.*, c.name as category_name, c.slug as category_slug 
+        $sql = "SELECT p.*, c.name as category_name, c.slug as category_slug,
+                       pi.image_url as main_image
                 FROM {$this->table} p 
                 LEFT JOIN categories c ON p.category_id = c.id 
+                LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
                 WHERE p.slug = :slug 
                 LIMIT 1";
         
@@ -85,10 +141,12 @@ class Product extends Model {
     }
 
     public function search($query, $limit = 10) {
-        $sql = "SELECT id, name, slug, price, sale_price, image_url 
-                FROM {$this->table} 
-                WHERE name LIKE :query 
-                ORDER BY name 
+        $sql = "SELECT p.id, p.name, p.slug, p.price, p.sale_price, 
+                       pi.image_url as main_image
+                FROM {$this->table} p
+                LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
+                WHERE p.name LIKE :query 
+                ORDER BY p.name 
                 LIMIT :limit";
         
         $stmt = $this->db->prepare($sql);
@@ -100,9 +158,11 @@ class Product extends Model {
     }
 
     public function getFeatured($limit = 8) {
-        $sql = "SELECT * FROM {$this->table} 
-                WHERE is_featured = 1 
-                ORDER BY views DESC 
+        $sql = "SELECT p.*, pi.image_url as main_image
+                FROM {$this->table} p
+                LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
+                WHERE p.is_featured = 1 
+                ORDER BY p.views DESC 
                 LIMIT :limit";
         
         $stmt = $this->db->prepare($sql);
@@ -110,6 +170,81 @@ class Product extends Model {
         $stmt->execute();
         
         return $stmt->fetchAll();
+    }
+
+    public function getFeaturedPaginated($page = 1, $perPage = 12, $orderBy = 'p.views DESC', $filters = []) {
+        $offset = ($page - 1) * $perPage;
+        
+        $sql = "SELECT p.*, c.name as category_name, 
+                       pi.image_url as main_image
+                FROM {$this->table} p 
+                LEFT JOIN categories c ON p.category_id = c.id 
+                LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
+                WHERE p.is_featured = 1";
+        
+        $bindParams = [];
+        
+        if (!empty($filters['min_price'])) {
+            $sql .= " AND COALESCE(p.sale_price, p.price) >= ?";
+            $bindParams[] = $filters['min_price'];
+        }
+        
+        if (!empty($filters['max_price'])) {
+            $sql .= " AND COALESCE(p.sale_price, p.price) <= ?";
+            $bindParams[] = $filters['max_price'];
+        }
+        
+        $sql .= " ORDER BY {$orderBy} LIMIT ? OFFSET ?";
+        
+        $bindParams[] = $perPage;
+        $bindParams[] = $offset;
+        
+        $stmt = $this->db->prepare($sql);
+        
+        $paramIndex = 1;
+        foreach ($bindParams as $param) {
+            if (is_int($param)) {
+                $stmt->bindValue($paramIndex++, $param, PDO::PARAM_INT);
+            } else {
+                $stmt->bindValue($paramIndex++, $param);
+            }
+        }
+        
+        $stmt->execute();
+        
+        return $stmt->fetchAll();
+    }
+
+    public function countFeatured($filters = []) {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table} WHERE is_featured = 1";
+        
+        $bindParams = [];
+        
+        if (!empty($filters['min_price'])) {
+            $sql .= " AND COALESCE(sale_price, price) >= ?";
+            $bindParams[] = $filters['min_price'];
+        }
+        
+        if (!empty($filters['max_price'])) {
+            $sql .= " AND COALESCE(sale_price, price) <= ?";
+            $bindParams[] = $filters['max_price'];
+        }
+        
+        $stmt = $this->db->prepare($sql);
+        
+        $paramIndex = 1;
+        foreach ($bindParams as $param) {
+            if (is_int($param)) {
+                $stmt->bindValue($paramIndex++, $param, PDO::PARAM_INT);
+            } else {
+                $stmt->bindValue($paramIndex++, $param);
+            }
+        }
+        
+        $stmt->execute();
+        $result = $stmt->fetch();
+        
+        return (int) $result['total'];
     }
 
 }

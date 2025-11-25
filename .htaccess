@@ -1,6 +1,11 @@
 # Redirect all requests to the public folder
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    
+    # Allow direct access to storage/uploads for images
+    RewriteCond %{REQUEST_URI} ^/devicesvn/storage/uploads/
+    RewriteRule ^ - [L]
+    
     RewriteRule ^$ public/ [L]
     RewriteRule (.*) public/$1 [L]
 </IfModule>

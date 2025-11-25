@@ -11,9 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="<?php echo asset('css/main-layout.css'); ?>">
     <link rel="stylesheet" href="<?php echo asset('css/auth-modal.css'); ?>">
-    <link rel="stylesheet" href="<?php echo asset('css/register-login.css'); ?>">
     <link rel="stylesheet" href="<?php echo asset('css/home.css'); ?>">
-    <link rel="stylesheet" href="<?php echo asset('css/style.css'); ?>">
 </head>
 <body>
     <header class="header">
@@ -80,19 +78,47 @@
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo url('products'); ?>">Products</a>
                         </li>
+                        
+                        <!-- Dynamic Categories Dropdown -->
+                        <?php if (!empty($navCategories)): ?>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" id="categoriesDropdown">
                                 Categories
                             </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="<?php echo url('products/category/laptops'); ?>">Laptops</a></li>
-                                <li><a class="dropdown-item" href="<?php echo url('products/category/gaming-laptops'); ?>">Gaming Laptops</a></li>
-                                <li><a class="dropdown-item" href="<?php echo url('products/category/phones'); ?>">Phones</a></li>
-                                <li><a class="dropdown-item" href="<?php echo url('products/category/accessories'); ?>">Accessories</a></li>
+                            <ul class="dropdown-menu" id="categoriesMenu">
+                                <?php foreach ($navCategories as $category): ?>
+                                    <?php if (!empty($category['children'])): ?>
+                                        <!-- Parent with children - nested dropdown -->
+                                        <li class="dropdown dropend">
+                                            <a class="dropdown-item parent-category-link" href="<?php echo url('products/category/' . $category['slug']); ?>">
+                                                <?php echo escape($category['name']); ?>
+                                                <i class="fas fa-chevron-right float-end ms-2 nested-toggle-icon"></i>
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <?php foreach ($category['children'] as $child): ?>
+                                                    <li>
+                                                        <a class="dropdown-item" href="<?php echo url('products/category/' . $child['slug']); ?>">
+                                                            <?php echo escape($child['name']); ?>
+                                                        </a>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </li>
+                                    <?php else: ?>
+                                        <!-- Parent without children - simple link -->
+                                        <li>
+                                            <a class="dropdown-item" href="<?php echo url('products/category/' . $category['slug']); ?>">
+                                                <?php echo escape($category['name']); ?>
+                                            </a>
+                                        </li>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
                             </ul>
                         </li>
+                        <?php endif; ?>
+                        
                         <li class="nav-item">
-                            <a class="nav-link" href="<?php echo url('home/contact'); ?>">Contact</a>
+                            <a class="nav-link" href="<?php echo url('about'); ?>">About</a>
                         </li>
                     </ul>
                 </div>
@@ -134,7 +160,7 @@
                     <ul class="list-unstyled">
                         <li><a href="<?php echo url(''); ?>" class="text-white-50">Home</a></li>
                         <li><a href="<?php echo url('products'); ?>" class="text-white-50">Products</a></li>
-                        <li><a href="<?php echo url('home/contact'); ?>" class="text-white-50">Contact</a></li>
+                        <li><a href="<?php echo url('about'); ?>" class="text-white-50">About</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">

@@ -61,7 +61,7 @@
     right: 20px;
     width: 40px;
     height: 40px;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.08);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -79,6 +79,22 @@
     background: var(--indigo-ink);
     color: var(--white);
     transform: rotate(90deg);
+}
+
+/* Desktop: Close button on light background */
+@media (min-width: 768px) {
+    .modal-close {
+        background: rgba(0, 0, 0, 0.08);
+        color: var(--prussian-blue);
+    }
+}
+
+/* Mobile: Close button on gradient background */
+@media (max-width: 767px) {
+    .modal-close {
+        background: rgba(255, 255, 255, 0.15);
+        color: var(--white);
+    }
 }
 
 .auth-left {
@@ -285,17 +301,56 @@
         padding: 10px;
     }
     
+    .auth-modal {
+        max-width: 100%;
+    }
+    
     .auth-left {
         padding: 40px 30px;
-        text-align: center;
     }
     
     .auth-left h2 {
         font-size: 1.8rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .auth-subtitle {
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .auth-features {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
     }
     
     .auth-features .feature-item {
-        justify-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin-bottom: 0;
+        text-align: left;
+    }
+    
+    .auth-features .feature-icon {
+        width: 45px;
+        height: 45px;
+        margin-right: 12px;
+    }
+    
+    .auth-features .feature-icon i {
+        font-size: 1.1rem;
+    }
+    
+    .auth-features .feature-text h4 {
+        font-size: 1rem;
+        margin-bottom: 0.2rem;
+    }
+    
+    .auth-features .feature-text p {
+        font-size: 0.85rem;
+        margin: 0;
     }
     
     .auth-right {

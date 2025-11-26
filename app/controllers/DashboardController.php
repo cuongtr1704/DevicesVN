@@ -10,18 +10,166 @@ class DashboardController extends Controller {
             $this->redirect('');
         }
         
+        $userId = $_SESSION['user_id'];
         $userRole = $_SESSION['user_role'] ?? 'customer';
+        
+        $database = Database::getInstance();
+        $db = $database->getConnection();
         
         $breadcrumbs = [
             ['label' => 'Dashboard', 'url' => '']
         ];
         
-        $data = [
-            'title' => 'Dashboard - ' . APP_NAME,
-            'activeSection' => 'overview',
-            'userRole' => $userRole,
-            'breadcrumbs' => $breadcrumbs
-        ];
+        if ($userRole === 'admin') {
+            // Admin Dashboard Statistics
+            
+            // Total Revenue
+            $revenueStmt = $db->prepare("SELECT SUM(total_amount) as total FROM orders WHERE status != 'cancelled'");
+            $revenueStmt->execute();
+            $totalRevenue = $revenueStmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+            
+            // Total Orders
+            $ordersStmt = $db->prepare("SELECT COUNT(*) as total FROM orders");
+            $ordersStmt->execute();
+            $totalOrders = $ordersStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Total Products
+            $productsStmt = $db->prepare("SELECT COUNT(*) as total FROM products");
+            $productsStmt->execute();
+            $totalProducts = $productsStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Total Users
+            $usersStmt = $db->prepare("SELECT COUNT(*) as total FROM users WHERE role = 'customer'");
+            $usersStmt->execute();
+            $totalUsers = $usersStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Pending Orders
+            $pendingStmt = $db->prepare("SELECT COUNT(*) as total FROM orders WHERE status = 'pending'");
+            $pendingStmt->execute();
+            $pendingOrders = $pendingStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Low Stock Products
+            $lowStockStmt = $db->prepare("SELECT COUNT(*) as total FROM products WHERE stock_quantity > 0 AND stock_quantity <= 10");
+            $lowStockStmt->execute();
+            $lowStockProducts = $lowStockStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Recent Orders (last 5)
+            $recentOrdersStmt = $db->prepare("
+                SELECT o.*, u.full_name as customer_name, COUNT(oi.id) as item_count
+                FROM orders o
+                LEFT JOIN users u ON o.user_id = u.id
+                LEFT JOIN order_items oi ON o.id = oi.order_id
+                GROUP BY o.id
+                ORDER BY o.created_at DESC
+                LIMIT 5
+            ");
+            $recentOrdersStmt->execute();
+            $recentOrders = $recentOrdersStmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Order Status Distribution
+            $statusStmt = $db->prepare("
+                SELECT status, COUNT(*) as count
+                FROM orders
+                GROUP BY status
+            ");
+            $statusStmt->execute();
+            $statusDistribution = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Monthly Revenue (last 6 months)
+            $monthlyRevenueStmt = $db->prepare("
+                SELECT 
+                    DATE_FORMAT(created_at, '%Y-%m') as month,
+                    SUM(total_amount) as revenue,
+                    COUNT(*) as order_count
+                FROM orders
+                WHERE status != 'cancelled'
+                AND created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+                GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+                ORDER BY month ASC
+            ");
+            $monthlyRevenueStmt->execute();
+            $monthlyRevenue = $monthlyRevenueStmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $data = [
+                'title' => 'Admin Dashboard - ' . APP_NAME,
+                'activeSection' => 'overview',
+                'userRole' => $userRole,
+                'breadcrumbs' => $breadcrumbs,
+                'totalRevenue' => $totalRevenue,
+                'totalOrders' => $totalOrders,
+                'totalProducts' => $totalProducts,
+                'totalUsers' => $totalUsers,
+                'pendingOrders' => $pendingOrders,
+                'lowStockProducts' => $lowStockProducts,
+                'recentOrders' => $recentOrders,
+                'statusDistribution' => $statusDistribution,
+                'monthlyRevenue' => $monthlyRevenue
+            ];
+        } else {
+            // Customer Dashboard Statistics
+            
+            // Total Orders
+            $ordersStmt = $db->prepare("SELECT COUNT(*) as total FROM orders WHERE user_id = ?");
+            $ordersStmt->execute([$userId]);
+            $totalOrders = $ordersStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Pending Orders
+            $pendingStmt = $db->prepare("SELECT COUNT(*) as total FROM orders WHERE user_id = ? AND status = 'pending'");
+            $pendingStmt->execute([$userId]);
+            $pendingOrders = $pendingStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Completed Orders
+            $completedStmt = $db->prepare("SELECT COUNT(*) as total FROM orders WHERE user_id = ? AND status = 'delivered'");
+            $completedStmt->execute([$userId]);
+            $completedOrders = $completedStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Wishlist Count
+            $wishlistStmt = $db->prepare("SELECT COUNT(*) as total FROM wishlist WHERE user_id = ?");
+            $wishlistStmt->execute([$userId]);
+            $wishlistCount = $wishlistStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Total Spent
+            $spentStmt = $db->prepare("SELECT SUM(total_amount) as total FROM orders WHERE user_id = ? AND status != 'cancelled'");
+            $spentStmt->execute([$userId]);
+            $totalSpent = $spentStmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+            
+            // Recent Orders (last 5)
+            $recentOrdersStmt = $db->prepare("
+                SELECT o.*, COUNT(oi.id) as item_count
+                FROM orders o
+                LEFT JOIN order_items oi ON o.id = oi.order_id
+                WHERE o.user_id = ?
+                GROUP BY o.id
+                ORDER BY o.created_at DESC
+                LIMIT 5
+            ");
+            $recentOrdersStmt->execute([$userId]);
+            $recentOrders = $recentOrdersStmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Order Status Distribution
+            $statusStmt = $db->prepare("
+                SELECT status, COUNT(*) as count
+                FROM orders
+                WHERE user_id = ?
+                GROUP BY status
+            ");
+            $statusStmt->execute([$userId]);
+            $statusDistribution = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $data = [
+                'title' => 'Dashboard - ' . APP_NAME,
+                'activeSection' => 'overview',
+                'userRole' => $userRole,
+                'breadcrumbs' => $breadcrumbs,
+                'totalOrders' => $totalOrders,
+                'pendingOrders' => $pendingOrders,
+                'completedOrders' => $completedOrders,
+                'wishlistCount' => $wishlistCount,
+                'totalSpent' => $totalSpent,
+                'recentOrders' => $recentOrders,
+                'statusDistribution' => $statusDistribution
+            ];
+        }
         
         $this->view('dashboard/index', $data);
     }
@@ -912,8 +1060,71 @@ class DashboardController extends Controller {
             return;
         }
         
-        $orderModel = $this->model('Order');
-        $orders = $orderModel->getAll('created_at DESC', 100);
+        // Get search, filter, and pagination parameters
+        $search = trim($_GET['search'] ?? '');
+        $status = trim($_GET['status'] ?? '');
+        $sort = $_GET['sort'] ?? 'newest';
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $perPage = 10;
+        $offset = ($page - 1) * $perPage;
+        
+        // Build query
+        $database = Database::getInstance();
+        $db = $database->getConnection();
+        
+        $whereConditions = [];
+        $params = [];
+        
+        // Search by order number, customer name or email
+        if (!empty($search)) {
+            $whereConditions[] = "(o.order_number LIKE :search1 OR u.full_name LIKE :search2 OR u.email LIKE :search3)";
+            $params[':search1'] = "%$search%";
+            $params[':search2'] = "%$search%";
+            $params[':search3'] = "%$search%";
+        }
+        
+        // Filter by status
+        if (!empty($status)) {
+            $whereConditions[] = "o.status = :status";
+            $params[':status'] = $status;
+        }
+        
+        $whereClause = !empty($whereConditions) ? implode(' AND ', $whereConditions) : '1=1';
+        
+        // Determine sort order
+        $orderBy = match($sort) {
+            'oldest' => 'o.created_at ASC',
+            'amount_high' => 'o.total_amount DESC',
+            'amount_low' => 'o.total_amount ASC',
+            'customer' => 'u.full_name ASC',
+            default => 'o.created_at DESC'
+        };
+        
+        // Get total count for pagination
+        $countQuery = "SELECT COUNT(DISTINCT o.id) as total 
+                       FROM orders o 
+                       LEFT JOIN users u ON o.user_id = u.id 
+                       WHERE $whereClause";
+        $countStmt = $db->prepare($countQuery);
+        $countStmt->execute($params);
+        $totalOrders = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+        $totalPages = ceil($totalOrders / $perPage);
+        
+        // Get orders with pagination
+        $query = "SELECT o.*, 
+                         u.full_name as customer_name, 
+                         u.email as customer_email,
+                         COUNT(oi.id) as item_count
+                  FROM orders o
+                  LEFT JOIN users u ON o.user_id = u.id
+                  LEFT JOIN order_items oi ON o.id = oi.order_id
+                  WHERE $whereClause
+                  GROUP BY o.id
+                  ORDER BY $orderBy
+                  LIMIT $perPage OFFSET $offset";
+        $stmt = $db->prepare($query);
+        $stmt->execute($params);
+        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         $breadcrumbs = [
             ['label' => 'Dashboard', 'url' => url('dashboard')],
@@ -923,9 +1134,15 @@ class DashboardController extends Controller {
         $data = [
             'title' => 'Manage All Orders - ' . APP_NAME,
             'orders' => $orders,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalOrders' => $totalOrders,
             'activeSection' => 'all-orders',
             'userRole' => 'admin',
-            'breadcrumbs' => $breadcrumbs
+            'breadcrumbs' => $breadcrumbs,
+            'search' => $search,
+            'selectedStatus' => $status,
+            'sort' => $sort
         ];
         
         $this->view('dashboard/all-orders', $data);

@@ -126,20 +126,46 @@ class OrderController extends Controller {
         
         $orderItems = $this->orderModel->getOrderItems($orderId);
         
-        // Determine breadcrumbs based on referrer
-        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        // Determine breadcrumbs and back URL based on 'from' parameter
+        $from = $_GET['from'] ?? '';
         $breadcrumbs = [];
         
         if ($userRole === 'admin') {
-            // Always show user-specific orders link for admin
-            $userModel = $this->model('User');
-            $orderUser = $userModel->findById($order['user_id']);
-            $breadcrumbs = [
-                ['label' => 'Dashboard', 'url' => url('dashboard')],
-                ['label' => 'Users', 'url' => url('dashboard/users')],
-                ['label' => $orderUser['full_name'] . "'s Orders", 'url' => url('dashboard/users/user-orders/' . $order['user_id'])],
-                ['label' => 'Order #' . $order['order_number'], 'url' => '']
-            ];
+            // Check if coming from all-orders page
+            if ($from === 'all-orders') {
+                // Build back URL with preserved filters
+                $search = $_GET['search'] ?? '';
+                $status = $_GET['status'] ?? '';
+                $sort = $_GET['sort'] ?? '';
+                $page = $_GET['page'] ?? 1;
+                
+                $params = [];
+                if (!empty($search)) $params['search'] = $search;
+                if (!empty($status)) $params['status'] = $status;
+                if (!empty($sort)) $params['sort'] = $sort;
+                if ($page > 1) $params['page'] = $page;
+                
+                $backUrl = url('dashboard/all-orders');
+                if (!empty($params)) {
+                    $backUrl .= '?' . http_build_query($params);
+                }
+                
+                $breadcrumbs = [
+                    ['label' => 'Dashboard', 'url' => url('dashboard')],
+                    ['label' => 'All Orders', 'url' => $backUrl],
+                    ['label' => 'Order #' . $order['order_number'], 'url' => '']
+                ];
+            } else {
+                // Default: show user-specific orders link for admin
+                $userModel = $this->model('User');
+                $orderUser = $userModel->findById($order['user_id']);
+                $breadcrumbs = [
+                    ['label' => 'Dashboard', 'url' => url('dashboard')],
+                    ['label' => 'Users', 'url' => url('dashboard/users')],
+                    ['label' => $orderUser['full_name'] . "'s Orders", 'url' => url('dashboard/users/user-orders/' . $order['user_id'])],
+                    ['label' => 'Order #' . $order['order_number'], 'url' => '']
+                ];
+            }
         } else {
             $breadcrumbs = [
                 ['label' => 'Dashboard', 'url' => url('dashboard')],

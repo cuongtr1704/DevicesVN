@@ -90,11 +90,38 @@ class ProductsController extends Controller {
             $hasReviewed = $reviewModel->hasUserReviewed($product['id'], $_SESSION['user_id']);
         }
         
-        $breadcrumbs = [
-            ['label' => 'Products', 'url' => url('products')],
-            ['label' => $product['category_name'], 'url' => url('products/category/' . $product['category_slug'])],
-            ['label' => $product['name'], 'url' => '']
-        ];
+        // Build breadcrumbs - check if coming from dashboard
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        $fromDashboardProducts = strpos($referer, '/dashboard/products') !== false;
+        $fromDashboardWishlist = strpos($referer, '/dashboard/wishlist') !== false;
+        
+        if ($this->isLoggedIn()) {
+            if ($fromDashboardProducts && $_SESSION['user_role'] === 'admin') {
+                $breadcrumbs = [
+                    ['label' => 'Dashboard', 'url' => url('dashboard')],
+                    ['label' => 'Products', 'url' => url('dashboard/products')],
+                    ['label' => $product['name'], 'url' => '']
+                ];
+            } elseif ($fromDashboardWishlist) {
+                $breadcrumbs = [
+                    ['label' => 'Dashboard', 'url' => url('dashboard')],
+                    ['label' => 'Wishlist', 'url' => url('dashboard/wishlist')],
+                    ['label' => $product['name'], 'url' => '']
+                ];
+            } else {
+                $breadcrumbs = [
+                    ['label' => 'Products', 'url' => url('products')],
+                    ['label' => $product['category_name'], 'url' => url('products/category/' . $product['category_slug'])],
+                    ['label' => $product['name'], 'url' => '']
+                ];
+            }
+        } else {
+            $breadcrumbs = [
+                ['label' => 'Products', 'url' => url('products')],
+                ['label' => $product['category_name'], 'url' => url('products/category/' . $product['category_slug'])],
+                ['label' => $product['name'], 'url' => '']
+            ];
+        }
         
         $data = [
             'title' => $product['name'] . ' - ' . APP_NAME,

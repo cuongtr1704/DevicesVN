@@ -65,11 +65,11 @@
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group-vertical" role="group">
-                                                    <button class="btn btn-sm btn-info" 
-                                                            onclick="viewProduct(<?= $product['id'] ?>)" 
-                                                            title="View">
+                                                    <a href="<?= BASE_URL ?>products/<?= $product['slug'] ?>" 
+                                                       class="btn btn-sm btn-info" 
+                                                       title="View">
                                                         <i class="fas fa-eye"></i>
-                                                    </button>
+                                                    </a>
                                                     <button class="btn btn-sm btn-warning" 
                                                             onclick="editProduct(<?= $product['id'] ?>)" 
                                                             title="Edit">

@@ -3,9 +3,11 @@
 function previewIcon(iconClass, previewId) {
     const preview = document.getElementById(previewId);
     if (iconClass.trim()) {
+        // Remove all existing classes and add new ones
         preview.className = iconClass.trim();
     } else {
-        preview.className = 'fas fa-tag';
+        // Default icon - use a simple, always-available icon
+        preview.className = 'fas fa-folder';
     }
 }
 

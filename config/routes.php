@@ -99,11 +99,15 @@ return [
     // :slug = store name in URL format
     'stores/:slug' => ['controller' => 'StoresController', 'action' => 'detail'],
     
+    // ==================== STORAGE FILE SERVING ====================
+    'storage/uploads/:filename' => ['controller' => 'StorageController', 'action' => 'serve'],
+    
     // ==================== PRODUCT API ROUTES (ADMIN) ====================
     'dashboard/products/view/:id' => ['controller' => 'DashboardController', 'action' => 'viewProduct'],
     'dashboard/products/add' => ['controller' => 'DashboardController', 'action' => 'addProduct'],
     'dashboard/products/update/:id' => ['controller' => 'DashboardController', 'action' => 'updateProduct'],
     'dashboard/products/delete/:id' => ['controller' => 'DashboardController', 'action' => 'deleteProduct'],
+    'dashboard/products/delete-image/:id' => ['controller' => 'DashboardController', 'action' => 'deleteProductImage'],
     'dashboard/categories/list' => ['controller' => 'DashboardController', 'action' => 'getCategories'],
     
     // ==================== STATIC PAGE ROUTES ====================

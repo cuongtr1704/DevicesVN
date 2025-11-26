@@ -130,7 +130,7 @@
                         <label class="form-label">Icon (Font Awesome)</label>
                         <div class="input-group">
                             <span class="input-group-text">
-                                <i id="addIconPreview" class="fas fa-tag"></i>
+                                <i id="addIconPreview" class="fas fa-folder"></i>
                             </span>
                             <input type="text" class="form-control" name="icon" id="addCategoryIcon" 
                                    placeholder="e.g. fas fa-laptop, fas fa-mobile-alt" 
@@ -176,7 +176,7 @@
                         <label class="form-label">Icon (Font Awesome)</label>
                         <div class="input-group">
                             <span class="input-group-text">
-                                <i id="editIconPreview" class="fas fa-tag"></i>
+                                <i id="editIconPreview" class="fa-solid fa-icons"></i>
                             </span>
                             <input type="text" class="form-control" name="icon" id="editCategoryIcon" 
                                    placeholder="e.g. fas fa-laptop, fas fa-mobile-alt" 

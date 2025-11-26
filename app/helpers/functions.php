@@ -16,11 +16,25 @@ function url($path = '') {
 }
 
 function asset($path) {
-    // Handle storage/uploads paths - these need special handling
+    // Handle storage/uploads paths - serve through routing system
     if (strpos($path, 'storage/uploads/') === 0) {
         return BASE_URL . $path;
     }
     return ASSETS_URL . ltrim($path, '/');
+}
+
+function slugify($text) {
+    // Convert to lowercase
+    $text = strtolower($text);
+    // Replace Vietnamese characters
+    $vietnamese = ['á','à','ả','ã','ạ','ă','ắ','ằ','ẳ','ẵ','ặ','â','ấ','ầ','ẩ','ẫ','ậ','đ','é','è','ẻ','ẽ','ẹ','ê','ế','ề','ể','ễ','ệ','í','ì','ỉ','ĩ','ị','ó','ò','ỏ','õ','ọ','ô','ố','ồ','ổ','ỗ','ộ','ơ','ớ','ờ','ở','ỡ','ợ','ú','ù','ủ','ũ','ụ','ư','ứ','ừ','ử','ữ','ự','ý','ỳ','ỷ','ỹ','ỵ'];
+    $latin = ['a','a','a','a','a','a','a','a','a','a','a','a','a','a','a','a','a','d','e','e','e','e','e','e','e','e','e','e','e','i','i','i','i','i','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','u','u','u','u','u','u','u','u','u','u','u','y','y','y','y','y'];
+    $text = str_replace($vietnamese, $latin, $text);
+    // Replace special characters with hyphens
+    $text = preg_replace('/[^a-z0-9]+/', '-', $text);
+    // Remove leading/trailing hyphens
+    $text = trim($text, '-');
+    return $text;
 }
 
 function isActive($path) {

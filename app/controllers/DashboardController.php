@@ -510,6 +510,19 @@ class DashboardController extends Controller {
         $product = $stmt->fetch();
         
         if ($product) {
+            // Get all product images
+            $imgStmt = $db->prepare("SELECT * FROM product_images WHERE product_id = ? ORDER BY is_main DESC, id ASC");
+            $imgStmt->execute([$id]);
+            $product['images'] = $imgStmt->fetchAll();
+            
+            // Parse specifications JSON to array
+            if (!empty($product['specifications'])) {
+                $specs = json_decode($product['specifications'], true);
+                $product['specifications_array'] = $specs ?: [];
+            } else {
+                $product['specifications_array'] = [];
+            }
+            
             echo json_encode(['success' => true, 'product' => $product]);
         } else {
             echo json_encode(['success' => false, 'message' => 'Product not found']);
@@ -529,28 +542,137 @@ class DashboardController extends Controller {
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $productModel = $this->model('Product');
+            $database = Database::getInstance();
+            $db = $database->getConnection();
+            
+            // Convert specifications array to JSON
+            $specifications = [];
+            if (!empty($_POST['spec_keys']) && is_array($_POST['spec_keys'])) {
+                foreach ($_POST['spec_keys'] as $index => $key) {
+                    if (!empty($key) && !empty($_POST['spec_values'][$index])) {
+                        $specifications[$key] = $_POST['spec_values'][$index];
+                    }
+                }
+            }
+            
+            // Generate slug from product name
+            $slug = slugify($_POST['name'] ?? '');
             
             $data = [
                 'name' => $_POST['name'] ?? '',
+                'slug' => $slug,
                 'sku' => $_POST['sku'] ?? '',
+                'brand' => $_POST['brand'] ?? null,
                 'price' => $_POST['price'] ?? 0,
                 'sale_price' => !empty($_POST['sale_price']) ? $_POST['sale_price'] : null,
                 'stock_quantity' => $_POST['stock_quantity'] ?? 0,
-                'category_id' => $_POST['category_id'] ?? null,
+                'category_id' => !empty($_POST['category_id']) ? $_POST['category_id'] : null,
                 'description' => $_POST['description'] ?? '',
-                'specifications' => $_POST['specifications'] ?? ''
+                'specifications' => !empty($specifications) ? json_encode($specifications) : null
             ];
             
-            $productId = $productModel->insert($data);
-            
-            if ($productId) {
-                echo json_encode(['success' => true, 'message' => 'Product added successfully', 'product_id' => $productId]);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Failed to add product']);
+            try {
+                $productId = $productModel->insert($data);
+                
+                if ($productId) {
+                    // Handle image uploads
+                    $this->handleProductImages($productId, $_FILES);
+                    
+                    echo json_encode(['success' => true, 'message' => 'Product added successfully', 'product_id' => $productId]);
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Failed to add product']);
+                }
+            } catch (PDOException $e) {
+                // Check for duplicate entry error
+                if ($e->getCode() == 23000) {
+                    if (strpos($e->getMessage(), 'slug') !== false) {
+                        echo json_encode(['success' => false, 'message' => 'Product with this name already exists. Please use a different name.']);
+                    } else if (strpos($e->getMessage(), 'sku') !== false) {
+                        echo json_encode(['success' => false, 'message' => 'SKU already exists. Please use a different SKU.']);
+                    } else {
+                        echo json_encode(['success' => false, 'message' => 'Duplicate entry detected.']);
+                    }
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+                }
             }
         } else {
             echo json_encode(['success' => false, 'message' => 'Invalid request method']);
         }
+    }
+    
+    /**
+     * Handle product image uploads
+     */
+    private function handleProductImages($productId, $files) {
+        $database = Database::getInstance();
+        $db = $database->getConnection();
+        $uploadDir = ROOT_PATH . '/storage/uploads/';
+        
+        // Ensure upload directory exists
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        
+        // Handle main image
+        if (isset($files['main_image']) && $files['main_image']['error'] === UPLOAD_ERR_OK) {
+            $imageUrl = $this->uploadImage($files['main_image'], $uploadDir);
+            if ($imageUrl) {
+                // Check if main image already exists for this product
+                $stmt = $db->prepare("SELECT id, image_url FROM product_images WHERE product_id = ? AND is_main = 1");
+                $stmt->execute([$productId]);
+                $existingMain = $stmt->fetch();
+                
+                if ($existingMain) {
+                    // Delete old main image file
+                    $oldImagePath = ROOT_PATH . '/' . $existingMain['image_url'];
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
+                    // Update existing main image
+                    $stmt = $db->prepare("UPDATE product_images SET image_url = ? WHERE id = ?");
+                    $stmt->execute([$imageUrl, $existingMain['id']]);
+                } else {
+                    // Insert new main image
+                    $stmt = $db->prepare("INSERT INTO product_images (product_id, image_url, is_main) VALUES (?, ?, 1)");
+                    $stmt->execute([$productId, $imageUrl]);
+                }
+            }
+        }
+        
+        // Handle alternative images
+        for ($i = 1; $i <= 3; $i++) {
+            $fieldName = 'alt_image_' . $i;
+            if (isset($files[$fieldName]) && $files[$fieldName]['error'] === UPLOAD_ERR_OK) {
+                $imageUrl = $this->uploadImage($files[$fieldName], $uploadDir);
+                if ($imageUrl) {
+                    // Just insert alternative images (user can delete unwanted ones)
+                    $stmt = $db->prepare("INSERT INTO product_images (product_id, image_url, is_main) VALUES (?, ?, 0)");
+                    $stmt->execute([$productId, $imageUrl]);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Upload single image
+     */
+    private function uploadImage($file, $uploadDir) {
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+        
+        if (!in_array($file['type'], $allowedTypes)) {
+            return false;
+        }
+        
+        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = uniqid('product_') . '_' . time() . '.' . $extension;
+        $filepath = $uploadDir . $filename;
+        
+        if (move_uploaded_file($file['tmp_name'], $filepath)) {
+            return 'storage/uploads/' . $filename;
+        }
+        
+        return false;
     }
     
     /**
@@ -567,20 +689,68 @@ class DashboardController extends Controller {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $productModel = $this->model('Product');
             
+            // Convert specifications array to JSON
+            $specifications = [];
+            if (!empty($_POST['spec_keys']) && is_array($_POST['spec_keys'])) {
+                foreach ($_POST['spec_keys'] as $index => $key) {
+                    if (!empty($key) && !empty($_POST['spec_values'][$index])) {
+                        $specifications[$key] = $_POST['spec_values'][$index];
+                    }
+                }
+            }
+            
+            // Generate slug from product name
+            $slug = slugify($_POST['name'] ?? '');
+            
             $data = [
                 'name' => $_POST['name'] ?? '',
+                'slug' => $slug,
                 'sku' => $_POST['sku'] ?? '',
+                'brand' => $_POST['brand'] ?? null,
                 'price' => $_POST['price'] ?? 0,
                 'sale_price' => !empty($_POST['sale_price']) ? $_POST['sale_price'] : null,
                 'stock_quantity' => $_POST['stock_quantity'] ?? 0,
-                'category_id' => $_POST['category_id'] ?? null,
+                'category_id' => !empty($_POST['category_id']) ? $_POST['category_id'] : null,
                 'description' => $_POST['description'] ?? '',
-                'specifications' => $_POST['specifications'] ?? ''
+                'specifications' => !empty($specifications) ? json_encode($specifications) : null
             ];
             
             $updated = $productModel->update($id, $data);
             
             if ($updated) {
+                // Handle image deletions if requested
+                if (!empty($_POST['delete_images'])) {
+                    $imageIdsToDelete = json_decode($_POST['delete_images'], true);
+                    if (is_array($imageIdsToDelete)) {
+                        foreach ($imageIdsToDelete as $imageId) {
+                            $this->deleteProductImageById($imageId);
+                        }
+                    }
+                }
+                
+                // Handle new image uploads if provided
+                $filesUploaded = false;
+                if (!empty($_FILES)) {
+                    // Check if any files were actually uploaded (not just empty fields)
+                    foreach ($_FILES as $key => $file) {
+                        if (is_array($file['error'])) {
+                            foreach ($file['error'] as $error) {
+                                if ($error === UPLOAD_ERR_OK) {
+                                    $filesUploaded = true;
+                                    break 2;
+                                }
+                            }
+                        } else if ($file['error'] === UPLOAD_ERR_OK) {
+                            $filesUploaded = true;
+                            break;
+                        }
+                    }
+                    
+                    if ($filesUploaded) {
+                        $this->handleProductImages($id, $_FILES);
+                    }
+                }
+                
                 echo json_encode(['success' => true, 'message' => 'Product updated successfully']);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Failed to update product']);
@@ -588,6 +758,53 @@ class DashboardController extends Controller {
         } else {
             echo json_encode(['success' => false, 'message' => 'Invalid request method']);
         }
+    }
+    
+    /**
+     * Delete individual product image (API endpoint)
+     */
+    public function deleteProductImage($imageId) {
+        header('Content-Type: application/json');
+        
+        if (!$this->isLoggedIn() || $_SESSION['user_role'] !== 'admin') {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            return;
+        }
+        
+        $result = $this->deleteProductImageById($imageId);
+        
+        if ($result) {
+            echo json_encode(['success' => true, 'message' => 'Image deleted successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to delete image']);
+        }
+    }
+    
+    /**
+     * Helper method to delete product image by ID (used by both API and update operations)
+     */
+    private function deleteProductImageById($imageId) {
+        $database = Database::getInstance();
+        $db = $database->getConnection();
+        
+        // Get image details
+        $stmt = $db->prepare("SELECT * FROM product_images WHERE id = ?");
+        $stmt->execute([$imageId]);
+        $image = $stmt->fetch();
+        
+        if (!$image) {
+            return false;
+        }
+        
+        // Delete physical file
+        $filePath = ROOT_PATH . '/' . $image['image_url'];
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+        
+        // Delete from database
+        $deleteStmt = $db->prepare("DELETE FROM product_images WHERE id = ?");
+        return $deleteStmt->execute([$imageId]);
     }
     
     /**

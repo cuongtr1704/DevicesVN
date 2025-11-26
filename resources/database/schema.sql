@@ -167,36 +167,36 @@ CREATE TABLE wishlist (
 -- Categories
 INSERT INTO categories (name, slug, description, icon, parent_id, is_active, sort_order) VALUES
 -- Main categories
-('Laptop', 'laptops', 'Browse our selection of laptops', 'fa-laptop', NULL, TRUE, 1),
-('Gaming Laptops', 'gaming-laptops', 'High-performance gaming laptops', 'fa-gamepad', NULL, TRUE, 2),
-('PC Systems', 'pc-systems', 'Pre-built desktop PCs', 'fa-desktop', NULL, TRUE, 3),
-('Main, CPU, GPU', 'main-cpu-gpu', 'Motherboards, processors and graphics cards', 'fa-microchip', NULL, TRUE, 4),
-('Cases, PSU, Cooling', 'cases-psu-cooling', 'PC cases, power supplies and cooling systems', 'fa-fan', NULL, TRUE, 5),
-('Storage, RAM, Memory Cards', 'storage-ram-memory', 'Hard drives, SSDs, RAM and memory cards', 'fa-hdd', NULL, TRUE, 6),
-('Speakers, Mics, Webcams', 'speakers-mics-webcams', 'Audio and video peripherals', 'fa-volume-up', NULL, TRUE, 7),
-('Monitors', 'monitors', 'Computer displays and monitors', 'fa-tv', NULL, TRUE, 8),
-('Keyboards', 'keyboards', 'Mechanical and membrane keyboards', 'fa-keyboard', NULL, TRUE, 9),
-('Mice & Mouse Pads', 'mice-mouse-pads', 'Gaming and office mice with mouse pads', 'fa-mouse', NULL, TRUE, 10),
-('Headphones', 'headphones', 'Headphones and gaming headsets', 'fa-headphones', NULL, TRUE, 11),
-('Chairs & Desks', 'chairs-desks', 'Gaming chairs and computer desks', 'fa-chair', NULL, TRUE, 12),
-('Software & Networking', 'software-networking', 'Software licenses and networking equipment', 'fa-network-wired', NULL, TRUE, 13),
-('Consoles & Handhelds', 'consoles-handhelds', 'Gaming consoles and handheld devices', 'fa-gamepad', NULL, TRUE, 14),
-('Accessories', 'accessories', 'Hubs, chargers, cables and other accessories', 'fa-plug', NULL, TRUE, 15),
-('Services & Information', 'services-information', 'Technical services and product information', 'fa-info-circle', NULL, TRUE, 16),
+('Laptop', 'laptops', 'Browse our selection of laptops', 'fas fa-laptop', NULL, TRUE, 1),
+('Gaming Laptops', 'gaming-laptops', 'High-performance gaming laptops', 'fas fa-gamepad', NULL, TRUE, 2),
+('PC Systems', 'pc-systems', 'Pre-built desktop PCs', 'fas fa-desktop', NULL, TRUE, 3),
+('Main, CPU, GPU', 'main-cpu-gpu', 'Motherboards, processors and graphics cards', 'fas fa-microchip', NULL, TRUE, 4),
+('Cases, PSU, Cooling', 'cases-psu-cooling', 'PC cases, power supplies and cooling systems', 'fas fa-fan', NULL, TRUE, 5),
+('Storage, RAM, Memory Cards', 'storage-ram-memory', 'Hard drives, SSDs, RAM and memory cards', 'fas fa-hdd', NULL, TRUE, 6),
+('Speakers, Mics, Webcams', 'speakers-mics-webcams', 'Audio and video peripherals', 'fas fa-volume-up', NULL, TRUE, 7),
+('Monitors', 'monitors', 'Computer displays and monitors', 'fas fa-tv', NULL, TRUE, 8),
+('Keyboards', 'keyboards', 'Mechanical and membrane keyboards', 'fas fa-keyboard', NULL, TRUE, 9),
+('Mice & Mouse Pads', 'mice-mouse-pads', 'Gaming and office mice with mouse pads', 'fas fa-mouse', NULL, TRUE, 10),
+('Headphones', 'headphones', 'Headphones and gaming headsets', 'fas fa-headphones', NULL, TRUE, 11),
+('Chairs & Desks', 'chairs-desks', 'Gaming chairs and computer desks', 'fas fa-chair', NULL, TRUE, 12),
+('Software & Networking', 'software-networking', 'Software licenses and networking equipment', 'fas fa-network-wired', NULL, TRUE, 13),
+('Consoles & Handhelds', 'consoles-handhelds', 'Gaming consoles and handheld devices', 'fas fa-gamepad', NULL, TRUE, 14),
+('Accessories', 'accessories', 'Hubs, chargers, cables and other accessories', 'fas fa-plug', NULL, TRUE, 15),
+('Services & Information', 'services-information', 'Technical services and product information', 'fas fa-info-circle', NULL, TRUE, 16),
 
 -- Subcategories for Main, CPU, GPU
-('Motherboards', 'motherboards', 'Computer motherboards', 'fa-microchip', 4, TRUE, 17),
-('Processors (CPU)', 'processors', 'Computer processors', 'fa-microchip', 4, TRUE, 18),
-('Graphics Cards (GPU)', 'graphics-cards', 'Video graphics cards', 'fa-microchip', 4, TRUE, 19),
+('Motherboards', 'motherboards', 'Computer motherboards', 'fas fa-microchip', 4, TRUE, 17),
+('Processors (CPU)', 'processors', 'Computer processors', 'fas fa-microchip', 4, TRUE, 18),
+('Graphics Cards (GPU)', 'graphics-cards', 'Video graphics cards', 'fas fa-microchip', 4, TRUE, 19),
 
 -- Subcategories for Storage
-('SSD', 'ssd', 'Solid State Drives', 'fa-hdd', 6, TRUE, 20),
-('HDD', 'hdd', 'Hard Disk Drives', 'fa-hdd', 6, TRUE, 21),
-('RAM', 'ram', 'Memory modules', 'fa-memory', 6, TRUE, 22),
+('SSD', 'ssd', 'Solid State Drives', 'fas fa-hdd', 6, TRUE, 20),
+('HDD', 'hdd', 'Hard Disk Drives', 'fas fa-hdd', 6, TRUE, 21),
+('RAM', 'ram', 'Memory modules', 'fas fa-memory', 6, TRUE, 22),
 
 -- Subcategories for Monitors
-('Gaming Monitors', 'gaming-monitors', 'High refresh rate gaming monitors', 'fa-tv', 8, TRUE, 23),
-('Office Monitors', 'office-monitors', 'Productivity and office monitors', 'fa-tv', 8, TRUE, 24);
+('Gaming Monitors', 'gaming-monitors', 'High refresh rate gaming monitors', 'fas fa-tv', 8, TRUE, 23),
+('Office Monitors', 'office-monitors', 'Productivity and office monitors', 'fas fa-tv', 8, TRUE, 24);
 
 -- Admin User (password: admin123)
 -- Password security: HMAC-SHA256(password, pepper) + BCrypt(cost=12)
@@ -337,80 +337,80 @@ TRUE);
 -- Note: Alt text will be auto-generated as "{product_name} - {description from filename}"
 INSERT INTO product_images (product_id, image_url, sort_order, is_main) VALUES
 -- Dell XPS 13 (Product ID: 1)
-(1, 'storage/uploads/no-image.svg', 1, TRUE),
-(1, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(1, 'storage/uploads/no-image.png', 1, TRUE),
+(1, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- MacBook Air M2 (Product ID: 2)
-(2, 'storage/uploads/no-image.svg', 1, TRUE),
-(2, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(2, 'storage/uploads/no-image.png', 1, TRUE),
+(2, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- HP Pavilion 15 (Product ID: 3)
-(3, 'storage/uploads/no-image.svg', 1, TRUE),
-(3, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(3, 'storage/uploads/no-image.png', 1, TRUE),
+(3, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- ASUS ROG Strix G16 (Product ID: 4)
-(4, 'storage/uploads/no-image.svg', 1, TRUE),
-(4, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(4, 'storage/uploads/no-image.png', 1, TRUE),
+(4, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- Acer Predator Helios 300 (Product ID: 5)
-(5, 'storage/uploads/no-image.svg', 1, TRUE),
-(5, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(5, 'storage/uploads/no-image.png', 1, TRUE),
+(5, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- MSI Katana 15 (Product ID: 6)
-(6, 'storage/uploads/no-image.svg', 1, TRUE),
-(6, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(6, 'storage/uploads/no-image.png', 1, TRUE),
+(6, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- iPhone 15 Pro Max (Product ID: 7)
-(7, 'storage/uploads/no-image.svg', 1, TRUE),
-(7, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(7, 'storage/uploads/no-image.png', 1, TRUE),
+(7, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- Samsung Galaxy S24 Ultra (Product ID: 8)
-(8, 'storage/uploads/no-image.svg', 1, TRUE),
-(8, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(8, 'storage/uploads/no-image.png', 1, TRUE),
+(8, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- Xiaomi 14 Pro (Product ID: 9)
-(9, 'storage/uploads/no-image.svg', 1, TRUE),
-(9, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(9, 'storage/uploads/no-image.png', 1, TRUE),
+(9, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- iPad Pro 11-inch M2 (Product ID: 10)
-(10, 'storage/uploads/no-image.svg', 1, TRUE),
-(10, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(10, 'storage/uploads/no-image.png', 1, TRUE),
+(10, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- Samsung Galaxy Tab S9 (Product ID: 11)
-(11, 'storage/uploads/no-image.svg', 1, TRUE),
-(11, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(11, 'storage/uploads/no-image.png', 1, TRUE),
+(11, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- Logitech G502 HERO (Product ID: 12)
-(12, 'storage/uploads/no-image.svg', 1, TRUE),
-(12, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(12, 'storage/uploads/no-image.png', 1, TRUE),
+(12, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- Razer DeathAdder V3 (Product ID: 13)
-(13, 'storage/uploads/no-image.svg', 1, TRUE),
-(13, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(13, 'storage/uploads/no-image.png', 1, TRUE),
+(13, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- Razer BlackWidow V3 (Product ID: 14)
-(14, 'storage/uploads/no-image.svg', 1, TRUE),
-(14, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(14, 'storage/uploads/no-image.png', 1, TRUE),
+(14, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- Logitech G Pro X (Product ID: 15)
-(15, 'storage/uploads/no-image.svg', 1, TRUE),
-(15, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(15, 'storage/uploads/no-image.png', 1, TRUE),
+(15, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- Keychron K8 Pro (Product ID: 16)
-(16, 'storage/uploads/no-image.svg', 1, TRUE),
-(16, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(16, 'storage/uploads/no-image.png', 1, TRUE),
+(16, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- Sony WH-1000XM5 (Product ID: 17)
-(17, 'storage/uploads/no-image.svg', 1, TRUE),
-(17, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(17, 'storage/uploads/no-image.png', 1, TRUE),
+(17, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- HyperX Cloud II (Product ID: 18)
-(18, 'storage/uploads/no-image.svg', 1, TRUE),
-(18, 'storage/uploads/no-image-1.svg', 2, FALSE),
+(18, 'storage/uploads/no-image.png', 1, TRUE),
+(18, 'storage/uploads/no-image-1.png', 2, FALSE),
 
 -- SteelSeries Arctis Nova Pro (Product ID: 19)
-(19, 'storage/uploads/no-image.svg', 1, TRUE),
-(19, 'storage/uploads/no-image-1.svg', 2, FALSE);
+(19, 'storage/uploads/no-image.png', 1, TRUE),
+(19, 'storage/uploads/no-image-1.png', 2, FALSE);
 
 -- ============================================================
 SELECT '✅ Database created successfully!' AS Status;

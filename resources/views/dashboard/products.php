@@ -14,13 +14,86 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="mb-0">
                         <i class="fas fa-box me-2"></i>Manage Products
+                        <?php if (isset($totalProducts) && $totalProducts > 0): ?>
+                            <span class="badge bg-primary fs-6 ms-2"><?= $totalProducts ?></span>
+                        <?php endif; ?>
                     </h2>
                     <button class="btn btn-primary" onclick="addProduct()">
                         <i class="fas fa-plus me-2"></i>Add Product
                     </button>
                 </div>
 
-                <!-- Products Table -->
+                <!-- Search and Filter -->
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body p-3">
+                        <form method="GET" action="<?= url('dashboard/products') ?>" class="row g-2 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label small mb-1">
+                                    <i class="fas fa-search me-1"></i>Search Products
+                                </label>
+                                <input type="text" class="form-control" name="search" 
+                                       placeholder="Search by product name..." 
+                                       value="<?= escape($search ?? '') ?>">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small mb-1">
+                                    <i class="fas fa-filter me-1"></i>Category
+                                </label>
+                                <select class="form-select" name="category">
+                                    <option value="">All Categories</option>
+                                    <?php foreach ($categories as $cat): ?>
+                                        <option value="<?= $cat['id'] ?>" <?= ($selectedCategory ?? '') == $cat['id'] ? 'selected' : '' ?>>
+                                            <?= escape($cat['name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small mb-1">
+                                    <i class="fas fa-boxes me-1"></i>Stock
+                                </label>
+                                <select class="form-select" name="stock">
+                                    <option value="">All Stock</option>
+                                    <option value="in" <?= ($selectedStock ?? '') === 'in' ? 'selected' : '' ?>>In Stock</option>
+                                    <option value="out" <?= ($selectedStock ?? '') === 'out' ? 'selected' : '' ?>>Out of Stock</option>
+                                    <option value="low" <?= ($selectedStock ?? '') === 'low' ? 'selected' : '' ?>>Low Stock (≤10)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small mb-1">
+                                    <i class="fas fa-sort me-1"></i>Sort By
+                                </label>
+                                <select class="form-select" name="sort">
+                                    <option value="newest" <?= ($sort ?? 'newest') === 'newest' ? 'selected' : '' ?>>Newest First</option>
+                                    <option value="oldest" <?= ($sort ?? '') === 'oldest' ? 'selected' : '' ?>>Oldest First</option>
+                                    <option value="name_asc" <?= ($sort ?? '') === 'name_asc' ? 'selected' : '' ?>>Name (A-Z)</option>
+                                    <option value="name_desc" <?= ($sort ?? '') === 'name_desc' ? 'selected' : '' ?>>Name (Z-A)</option>
+                                    <option value="price_low" <?= ($sort ?? '') === 'price_low' ? 'selected' : '' ?>>Price (Low-High)</option>
+                                    <option value="price_high" <?= ($sort ?? '') === 'price_high' ? 'selected' : '' ?>>Price (High-Low)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search me-1"></i>Search
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <?php if ((!empty($search) || !empty($selectedCategory) || !empty($selectedStock)) && empty($products)): ?>
+                    <!-- No Results State -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">No products found</h5>
+                            <p class="text-muted">Try adjusting your search or filter criteria.</p>
+                            <a href="<?= url('dashboard/products') ?>" class="btn btn-outline-primary">
+                                <i class="fas fa-redo me-1"></i>Reset Filters
+                            </a>
+                        </div>
+                    </div>
+                <?php elseif (!empty($products)): ?>
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -91,34 +164,58 @@
                     
                     <!-- Pagination -->
                     <?php if ($totalPages > 1): ?>
+                        <?php
+                        function buildProductsPaginationUrl($page, $search, $category, $stock, $sort) {
+                            $params = ['page' => $page];
+                            if (!empty($search)) $params['search'] = $search;
+                            if (!empty($category)) $params['category'] = $category;
+                            if (!empty($stock)) $params['stock'] = $stock;
+                            if (!empty($sort) && $sort !== 'newest') $params['sort'] = $sort;
+                            return url('dashboard/products') . '?' . http_build_query($params);
+                        }
+                        ?>
                         <div class="card-footer bg-white border-0">
                             <nav>
                                 <ul class="pagination justify-content-center mb-0">
                                     <!-- Previous -->
-                                    <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-                                        <a class="page-link" href="<?= url('dashboard/products?page=' . ($page - 1)) ?>">
+                                    <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="<?= buildProductsPaginationUrl($currentPage - 1, $search, $selectedCategory, $selectedStock, $sort) ?>">
                                             <i class="fas fa-chevron-left"></i>
                                         </a>
                                     </li>
                                     
                                     <!-- Pages -->
-                                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                                        <?php if ($i == 1 || $i == $totalPages || abs($i - $page) <= 2): ?>
-                                            <li class="page-item <?= $i == $page ? 'active' : '' ?>">
-                                                <a class="page-link" href="<?= url('dashboard/products?page=' . $i) ?>">
-                                                    <?= $i ?>
-                                                </a>
-                                            </li>
-                                        <?php elseif (abs($i - $page) == 3): ?>
-                                            <li class="page-item disabled">
-                                                <span class="page-link">...</span>
-                                            </li>
+                                    <?php 
+                                    $start = max(1, $currentPage - 2);
+                                    $end = min($totalPages, $currentPage + 2);
+                                    
+                                    if ($start > 1): ?>
+                                        <li class="page-item">
+                                            <a class="page-link" href="<?= buildProductsPaginationUrl(1, $search, $selectedCategory, $selectedStock, $sort) ?>">1</a>
+                                        </li>
+                                        <?php if ($start > 2): ?>
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
                                         <?php endif; ?>
+                                    <?php endif; ?>
+                                    
+                                    <?php for ($i = $start; $i <= $end; $i++): ?>
+                                        <li class="page-item <?= $i === $currentPage ? 'active' : '' ?>">
+                                            <a class="page-link" href="<?= buildProductsPaginationUrl($i, $search, $selectedCategory, $selectedStock, $sort) ?>"><?= $i ?></a>
+                                        </li>
                                     <?php endfor; ?>
                                     
+                                    <?php if ($end < $totalPages): ?>
+                                        <?php if ($end < $totalPages - 1): ?>
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        <?php endif; ?>
+                                        <li class="page-item">
+                                            <a class="page-link" href="<?= buildProductsPaginationUrl($totalPages, $search, $selectedCategory, $selectedStock, $sort) ?>"><?= $totalPages ?></a>
+                                        </li>
+                                    <?php endif; ?>
+                                    
                                     <!-- Next -->
-                                    <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
-                                        <a class="page-link" href="<?= url('dashboard/products?page=' . ($page + 1)) ?>">
+                                    <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="<?= buildProductsPaginationUrl($currentPage + 1, $search, $selectedCategory, $selectedStock, $sort) ?>">
                                             <i class="fas fa-chevron-right"></i>
                                         </a>
                                     </li>
@@ -127,10 +224,7 @@
                         </div>
                     <?php endif; ?>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
+            <?php endif; ?>
 
 <!-- Add Product Modal -->
 <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel">

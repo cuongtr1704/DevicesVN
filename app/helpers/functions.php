@@ -16,6 +16,11 @@ function url($path = '') {
 }
 
 function asset($path) {
+    // Handle null or empty path
+    if (empty($path)) {
+        return ASSETS_URL . 'images/placeholder.png';
+    }
+    
     // Handle storage/uploads paths - serve through routing system
     if (strpos($path, 'storage/uploads/') === 0) {
         return BASE_URL . $path;

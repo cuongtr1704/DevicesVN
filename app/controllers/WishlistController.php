@@ -11,7 +11,50 @@ class WishlistController extends Controller {
         }
         
         $wishlistModel = $this->model('Wishlist');
-        $items = $wishlistModel->getUserWishlist($_SESSION['user_id']);
+        $userId = $_SESSION['user_id'];
+        
+        // Get search and pagination parameters
+        $search = $_GET['search'] ?? '';
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $perPage = 9;
+        $offset = ($page - 1) * $perPage;
+        
+        // Build query
+        $database = Database::getInstance();
+        $db = $database->getConnection();
+        
+        $whereConditions = ["w.user_id = :user_id"];
+        $params = [':user_id' => $userId];
+        
+        // Search by product name
+        if (!empty($search)) {
+            $whereConditions[] = "p.name LIKE :search";
+            $params[':search'] = "%$search%";
+        }
+        
+        $whereClause = implode(' AND ', $whereConditions);
+        
+        // Get total count for pagination
+        $countQuery = "SELECT COUNT(*) as total 
+                      FROM wishlist w
+                      INNER JOIN products p ON w.product_id = p.id
+                      WHERE $whereClause";
+        $stmt = $db->prepare($countQuery);
+        $stmt->execute($params);
+        $totalItems = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+        $totalPages = ceil($totalItems / $perPage);
+        
+        // Get wishlist items with pagination
+        $query = "SELECT w.*, p.name, p.slug, p.price, p.sale_price, p.stock_quantity,
+                         (SELECT image_url FROM product_images WHERE product_id = p.id AND is_main = 1 LIMIT 1) as main_image
+                  FROM wishlist w
+                  INNER JOIN products p ON w.product_id = p.id
+                  WHERE $whereClause
+                  ORDER BY w.created_at DESC
+                  LIMIT $perPage OFFSET $offset";
+        $stmt = $db->prepare($query);
+        $stmt->execute($params);
+        $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         $userRole = $_SESSION['user_role'] ?? 'customer';
         
@@ -25,7 +68,11 @@ class WishlistController extends Controller {
             'items' => $items,
             'activeSection' => 'wishlist',
             'userRole' => $userRole,
-            'breadcrumbs' => $breadcrumbs
+            'breadcrumbs' => $breadcrumbs,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalItems' => $totalItems,
+            'search' => $search
         ];
         
         $this->view('dashboard/wishlist', $data);

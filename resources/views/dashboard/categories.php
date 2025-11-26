@@ -14,13 +14,49 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="mb-0">
                         <i class="fas fa-tags me-2"></i>Manage Categories
+                        <?php if (isset($totalCategories) && $totalCategories > 0): ?>
+                            <span class="badge bg-primary fs-6 ms-2"><?= $totalCategories ?></span>
+                        <?php endif; ?>
                     </h2>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                         <i class="fas fa-plus me-2"></i>Add Category
                     </button>
                 </div>
 
-                <!-- Categories Table -->
+                <!-- Search -->
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body p-3">
+                        <form method="GET" action="<?= url('dashboard/categories') ?>" class="row g-2 align-items-end">
+                            <div class="col-md-10">
+                                <label class="form-label small mb-1">
+                                    <i class="fas fa-search me-1"></i>Search Categories
+                                </label>
+                                <input type="text" class="form-control" name="search" 
+                                       placeholder="Search by name or description..." 
+                                       value="<?= escape($search ?? '') ?>">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search me-1"></i>Search
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <?php if (!empty($search) && empty($categories)): ?>
+                    <!-- No Results State -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">No categories found</h5>
+                            <p class="text-muted">No categories match your search criteria.</p>
+                            <a href="<?= url('dashboard/categories') ?>" class="btn btn-outline-primary">
+                                <i class="fas fa-redo me-1"></i>View All
+                            </a>
+                        </div>
+                    </div>
+                <?php elseif (!empty($categories)): ?>
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -79,9 +115,73 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
+                
+                <!-- Pagination -->
+                <?php if (isset($totalPages) && $totalPages > 1): ?>
+                    <?php
+                    function buildCategoriesPaginationUrl($page, $search) {
+                        $params = ['page' => $page];
+                        if (!empty($search)) $params['search'] = $search;
+                        return url('dashboard/categories') . '?' . http_build_query($params);
+                    }
+                    ?>
+                    <nav aria-label="Categories pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <?php if ($currentPage > 1): ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="<?= buildCategoriesPaginationUrl($currentPage - 1, $search) ?>">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            <?php else: ?>
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                                </li>
+                            <?php endif; ?>
+                            
+                            <?php
+                            $start = max(1, $currentPage - 2);
+                            $end = min($totalPages, $currentPage + 2);
+                            
+                            if ($start > 1): ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="<?= buildCategoriesPaginationUrl(1, $search) ?>">1</a>
+                                </li>
+                                <?php if ($start > 2): ?>
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                            
+                            <?php for ($i = $start; $i <= $end; $i++): ?>
+                                <li class="page-item <?= $i === $currentPage ? 'active' : '' ?>">
+                                    <a class="page-link" href="<?= buildCategoriesPaginationUrl($i, $search) ?>"><?= $i ?></a>
+                                </li>
+                            <?php endfor; ?>
+                            
+                            <?php if ($end < $totalPages): ?>
+                                <?php if ($end < $totalPages - 1): ?>
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                <?php endif; ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="<?= buildCategoriesPaginationUrl($totalPages, $search) ?>"><?= $totalPages ?></a>
+                                </li>
+                            <?php endif; ?>
+                            
+                            <?php if ($currentPage < $totalPages): ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="<?= buildCategoriesPaginationUrl($currentPage + 1, $search) ?>">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            <?php else: ?>
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </nav>
+                <?php endif; ?>
+            <?php endif; ?>
 </div>
 
 

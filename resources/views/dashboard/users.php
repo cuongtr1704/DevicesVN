@@ -14,15 +14,67 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="mb-0">
                         <i class="fas fa-users me-2"></i>Manage Users
+                        <?php if (isset($totalUsers) && $totalUsers > 0): ?>
+                            <span class="badge bg-primary fs-6 ms-2"><?= $totalUsers ?></span>
+                        <?php endif; ?>
                     </h2>
-                    <div>
-                        <span class="badge bg-primary fs-6 px-3 py-2">
-                            Total: <?= count($users) ?> Users
-                        </span>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body p-3">
+                        <form method="GET" action="<?= url('dashboard/users') ?>" class="row g-2 align-items-end">
+                            <div class="col-md-5">
+                                <label class="form-label small mb-1">
+                                    <i class="fas fa-search me-1"></i>Search Users
+                                </label>
+                                <input type="text" class="form-control" name="search" 
+                                       placeholder="Search by name or email..." 
+                                       value="<?= escape($search ?? '') ?>">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small mb-1">
+                                    <i class="fas fa-filter me-1"></i>Role
+                                </label>
+                                <select class="form-select" name="role">
+                                    <option value="">All Roles</option>
+                                    <option value="admin" <?= ($selectedRole ?? '') === 'admin' ? 'selected' : '' ?>>Admin</option>
+                                    <option value="customer" <?= ($selectedRole ?? '') === 'customer' ? 'selected' : '' ?>>Customer</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small mb-1">
+                                    <i class="fas fa-sort me-1"></i>Sort By
+                                </label>
+                                <select class="form-select" name="sort">
+                                    <option value="newest" <?= ($sort ?? 'newest') === 'newest' ? 'selected' : '' ?>>Newest First</option>
+                                    <option value="oldest" <?= ($sort ?? '') === 'oldest' ? 'selected' : '' ?>>Oldest First</option>
+                                    <option value="name_asc" <?= ($sort ?? '') === 'name_asc' ? 'selected' : '' ?>>Name (A-Z)</option>
+                                    <option value="name_desc" <?= ($sort ?? '') === 'name_desc' ? 'selected' : '' ?>>Name (Z-A)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search me-1"></i>Search
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
-                <!-- Users Table -->
+                <?php if ((!empty($search) || !empty($selectedRole)) && empty($users)): ?>
+                    <!-- No Results State -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">No users found</h5>
+                            <p class="text-muted">Try adjusting your search or filter criteria.</p>
+                            <a href="<?= url('dashboard/users') ?>" class="btn btn-outline-primary">
+                                <i class="fas fa-redo me-1"></i>Reset Filters
+                            </a>
+                        </div>
+                    </div>
+                <?php elseif (!empty($users)): ?>
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -115,6 +167,75 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Pagination -->
+                <?php if (isset($totalPages) && $totalPages > 1): ?>
+                    <?php
+                    function buildUsersPaginationUrl($page, $search, $role, $sort) {
+                        $params = ['page' => $page];
+                        if (!empty($search)) $params['search'] = $search;
+                        if (!empty($role)) $params['role'] = $role;
+                        if (!empty($sort) && $sort !== 'newest') $params['sort'] = $sort;
+                        return url('dashboard/users') . '?' . http_build_query($params);
+                    }
+                    ?>
+                    <nav aria-label="Users pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <?php if ($currentPage > 1): ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="<?= buildUsersPaginationUrl($currentPage - 1, $search, $selectedRole, $sort) ?>">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            <?php else: ?>
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                                </li>
+                            <?php endif; ?>
+                            
+                            <?php
+                            $start = max(1, $currentPage - 2);
+                            $end = min($totalPages, $currentPage + 2);
+                            
+                            if ($start > 1): ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="<?= buildUsersPaginationUrl(1, $search, $selectedRole, $sort) ?>">1</a>
+                                </li>
+                                <?php if ($start > 2): ?>
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                            
+                            <?php for ($i = $start; $i <= $end; $i++): ?>
+                                <li class="page-item <?= $i === $currentPage ? 'active' : '' ?>">
+                                    <a class="page-link" href="<?= buildUsersPaginationUrl($i, $search, $selectedRole, $sort) ?>"><?= $i ?></a>
+                                </li>
+                            <?php endfor; ?>
+                            
+                            <?php if ($end < $totalPages): ?>
+                                <?php if ($end < $totalPages - 1): ?>
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                <?php endif; ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="<?= buildUsersPaginationUrl($totalPages, $search, $selectedRole, $sort) ?>"><?= $totalPages ?></a>
+                                </li>
+                            <?php endif; ?>
+                            
+                            <?php if ($currentPage < $totalPages): ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="<?= buildUsersPaginationUrl($currentPage + 1, $search, $selectedRole, $sort) ?>">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            <?php else: ?>
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </nav>
+                <?php endif; ?>
+            <?php endif; ?>
             </div>
         </div>
     </div>
@@ -196,13 +317,6 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-danger" onclick="confirmDeleteUser()">
                     <i class="fas fa-trash me-1"></i>Delete User
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-                <button type="button" class="btn btn-warning" onclick="saveUserRole()">
-                    <i class="fas fa-save me-1"></i>Update Role
                 </button>
             </div>
         </div>

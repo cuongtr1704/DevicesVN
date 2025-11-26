@@ -284,12 +284,35 @@ class DashboardController extends Controller {
         }
         
         $categoryModel = $this->model('Category');
+        
+        // Get search and pagination parameters
+        $search = $_GET['search'] ?? '';
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $perPage = 10;
+        $offset = ($page - 1) * $perPage;
+        
+        // Get all categories for filtering
         $categoriesRaw = $categoryModel->getAll();
+        
+        // Filter by search
+        if (!empty($search)) {
+            $categoriesRaw = array_filter($categoriesRaw, function($category) use ($search) {
+                return stripos($category['name'], $search) !== false || 
+                       stripos($category['description'], $search) !== false;
+            });
+        }
         
         // Sort by sort_order ASC
         usort($categoriesRaw, function($a, $b) {
             return $a['sort_order'] - $b['sort_order'];
         });
+        
+        // Calculate pagination
+        $totalCategories = count($categoriesRaw);
+        $totalPages = ceil($totalCategories / $perPage);
+        
+        // Apply pagination
+        $categoriesRaw = array_slice($categoriesRaw, $offset, $perPage);
         
         // Add product count to each category
         $categories = [];
@@ -308,7 +331,11 @@ class DashboardController extends Controller {
             'categories' => $categories,
             'activeSection' => 'categories',
             'userRole' => 'admin',
-            'breadcrumbs' => $breadcrumbs
+            'breadcrumbs' => $breadcrumbs,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalCategories' => $totalCategories,
+            'search' => $search
         ];
         
         $this->view('dashboard/categories', $data);
@@ -401,12 +428,78 @@ class DashboardController extends Controller {
         }
         
         $productModel = $this->model('Product');
-        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $perPage = 20;
+        $categoryModel = $this->model('Category');
         
-        $products = $productModel->getPaginated($page, $perPage);
-        $totalProducts = $productModel->count();
+        // Get search, filter, and pagination parameters
+        $search = $_GET['search'] ?? '';
+        $category = $_GET['category'] ?? '';
+        $stock = $_GET['stock'] ?? '';
+        $sort = $_GET['sort'] ?? 'newest';
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $perPage = 10;
+        $offset = ($page - 1) * $perPage;
+        
+        // Build query
+        $database = Database::getInstance();
+        $db = $database->getConnection();
+        
+        $whereConditions = ["1=1"];
+        $params = [];
+        
+        // Search by product name
+        if (!empty($search)) {
+            $whereConditions[] = "p.name LIKE :search";
+            $params[':search'] = "%$search%";
+        }
+        
+        // Filter by category
+        if (!empty($category)) {
+            $whereConditions[] = "p.category_id = :category";
+            $params[':category'] = $category;
+        }
+        
+        // Filter by stock status
+        if ($stock === 'in') {
+            $whereConditions[] = "p.stock_quantity > 0";
+        } elseif ($stock === 'out') {
+            $whereConditions[] = "p.stock_quantity = 0";
+        } elseif ($stock === 'low') {
+            $whereConditions[] = "p.stock_quantity > 0 AND p.stock_quantity <= 10";
+        }
+        
+        $whereClause = implode(' AND ', $whereConditions);
+        
+        // Determine sort order
+        $orderBy = match($sort) {
+            'oldest' => 'p.created_at ASC',
+            'name_asc' => 'p.name ASC',
+            'name_desc' => 'p.name DESC',
+            'price_low' => 'p.price ASC',
+            'price_high' => 'p.price DESC',
+            default => 'p.created_at DESC'
+        };
+        
+        // Get total count for pagination
+        $countQuery = "SELECT COUNT(*) as total FROM products p WHERE $whereClause";
+        $stmt = $db->prepare($countQuery);
+        $stmt->execute($params);
+        $totalProducts = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
         $totalPages = ceil($totalProducts / $perPage);
+        
+        // Get products with pagination
+        $query = "SELECT p.*, c.name as category_name,
+                         (SELECT image_url FROM product_images WHERE product_id = p.id AND is_main = 1 LIMIT 1) as main_image
+                  FROM products p
+                  LEFT JOIN categories c ON p.category_id = c.id
+                  WHERE $whereClause
+                  ORDER BY $orderBy
+                  LIMIT $perPage OFFSET $offset";
+        $stmt = $db->prepare($query);
+        $stmt->execute($params);
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Get all categories for filter dropdown
+        $categories = $categoryModel->getAll();
         
         $breadcrumbs = [
             ['label' => 'Dashboard', 'url' => url('dashboard')],
@@ -416,12 +509,17 @@ class DashboardController extends Controller {
         $data = [
             'title' => 'Manage Products - ' . APP_NAME,
             'products' => $products,
+            'categories' => $categories,
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'totalProducts' => $totalProducts,
             'activeSection' => 'products',
             'userRole' => 'admin',
-            'breadcrumbs' => $breadcrumbs
+            'breadcrumbs' => $breadcrumbs,
+            'search' => $search,
+            'selectedCategory' => $category,
+            'selectedStock' => $stock,
+            'sort' => $sort
         ];
         
         $this->view('dashboard/products', $data);
@@ -437,7 +535,82 @@ class DashboardController extends Controller {
         }
         
         $userModel = $this->model('User');
-        $users = $userModel->getAll();
+        
+        // Get search, filter, and pagination parameters
+        $search = trim($_GET['search'] ?? '');
+        $role = trim($_GET['role'] ?? '');
+        $sort = $_GET['sort'] ?? 'newest';
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $perPage = 10;
+        $offset = ($page - 1) * $perPage;
+        
+        // Build query
+        $database = Database::getInstance();
+        $db = $database->getConnection();
+        
+        $whereConditions = [];
+        $params = [];
+        
+        // Search by name or email
+        if (!empty($search)) {
+            $whereConditions[] = "(full_name LIKE :search1 OR email LIKE :search2)";
+            $params[':search1'] = "%$search%";
+            $params[':search2'] = "%$search%";
+        }
+        
+        // Filter by role
+        if (!empty($role)) {
+            $whereConditions[] = "role = :role";
+            $params[':role'] = $role;
+        }
+        
+        $whereClause = !empty($whereConditions) ? implode(' AND ', $whereConditions) : '1=1';
+        
+        // Determine sort order
+        $orderBy = match($sort) {
+            'oldest' => 'created_at ASC',
+            'name_asc' => 'full_name ASC',
+            'name_desc' => 'full_name DESC',
+            default => 'created_at DESC'
+        };
+        
+        // Get total count for pagination
+        $countQuery = "SELECT COUNT(*) as total FROM users WHERE $whereClause";
+        $countStmt = $db->prepare($countQuery);
+        
+        // Create fresh params array for count query
+        $countParams = [];
+        if (!empty($search)) {
+            $countParams[':search1'] = "%$search%";
+            $countParams[':search2'] = "%$search%";
+        }
+        if (!empty($role)) {
+            $countParams[':role'] = $role;
+        }
+        
+        $countStmt->execute($countParams);
+        $totalUsers = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+        $totalPages = ceil($totalUsers / $perPage);
+        
+        // Get users with pagination
+        $query = "SELECT * FROM users 
+                  WHERE $whereClause 
+                  ORDER BY $orderBy 
+                  LIMIT $perPage OFFSET $offset";
+        $usersStmt = $db->prepare($query);
+        
+        // Create fresh params array for users query
+        $usersParams = [];
+        if (!empty($search)) {
+            $usersParams[':search1'] = "%$search%";
+            $usersParams[':search2'] = "%$search%";
+        }
+        if (!empty($role)) {
+            $usersParams[':role'] = $role;
+        }
+        
+        $usersStmt->execute($usersParams);
+        $users = $usersStmt->fetchAll(PDO::FETCH_ASSOC);
         
         $breadcrumbs = [
             ['label' => 'Dashboard', 'url' => url('dashboard')],
@@ -449,7 +622,13 @@ class DashboardController extends Controller {
             'users' => $users,
             'activeSection' => 'users',
             'userRole' => 'admin',
-            'breadcrumbs' => $breadcrumbs
+            'breadcrumbs' => $breadcrumbs,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalUsers' => $totalUsers,
+            'search' => $search,
+            'selectedRole' => $role,
+            'sort' => $sort
         ];
         
         $this->view('dashboard/users', $data);

@@ -24,7 +24,62 @@ class OrderController extends Controller {
         }
         
         $userId = $_SESSION['user_id'];
-        $orders = $this->orderModel->getUserOrders($userId);
+        
+        // Get search, filter, and pagination parameters
+        $search = trim($_GET['search'] ?? '');
+        $status = trim($_GET['status'] ?? '');
+        $sort = $_GET['sort'] ?? 'newest';
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $perPage = 10;
+        $offset = ($page - 1) * $perPage;
+        
+        // Build query
+        $database = Database::getInstance();
+        $db = $database->getConnection();
+        
+        $whereConditions = ["o.user_id = :user_id"];
+        $params = [':user_id' => $userId];
+        
+        // Search by order number
+        if (!empty($search)) {
+            $whereConditions[] = "o.order_number LIKE :search";
+            $params[':search'] = "%$search%";
+        }
+        
+        // Filter by status
+        if (!empty($status)) {
+            $whereConditions[] = "o.status = :status";
+            $params[':status'] = $status;
+        }
+        
+        $whereClause = implode(' AND ', $whereConditions);
+        
+        // Determine sort order
+        $orderBy = match($sort) {
+            'oldest' => 'o.created_at ASC',
+            'highest' => 'o.total_amount DESC',
+            'lowest' => 'o.total_amount ASC',
+            default => 'o.created_at DESC'
+        };
+        
+        // Get total count for pagination
+        $countQuery = "SELECT COUNT(DISTINCT o.id) as total FROM orders o WHERE $whereClause";
+        $stmt = $db->prepare($countQuery);
+        $stmt->execute($params);
+        $totalOrders = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+        $totalPages = ceil($totalOrders / $perPage);
+        
+        // Get orders with pagination
+        $query = "SELECT o.*, COUNT(oi.id) as item_count 
+                  FROM orders o 
+                  LEFT JOIN order_items oi ON o.id = oi.order_id 
+                  WHERE $whereClause 
+                  GROUP BY o.id 
+                  ORDER BY $orderBy 
+                  LIMIT $perPage OFFSET $offset";
+        $stmt = $db->prepare($query);
+        $stmt->execute($params);
+        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         $this->view('dashboard/orders', [
             'title' => 'My Orders',
@@ -34,7 +89,13 @@ class OrderController extends Controller {
             'breadcrumbs' => [
                 ['label' => 'Dashboard', 'url' => url('dashboard')],
                 ['label' => 'My Orders', 'url' => '']
-            ]
+            ],
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalOrders' => $totalOrders,
+            'search' => $search,
+            'status' => $status,
+            'sort' => $sort
         ]);
     }
     

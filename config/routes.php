@@ -52,7 +52,12 @@ return [
     'dashboard/wishlist' => ['controller' => 'WishlistController', 'action' => 'index'],
     'dashboard/categories' => ['controller' => 'DashboardController', 'action' => 'categories'],
     'dashboard/products' => ['controller' => 'DashboardController', 'action' => 'products'],
-    'dashboard/customers' => ['controller' => 'DashboardController', 'action' => 'customers'],
+    'dashboard/users' => ['controller' => 'DashboardController', 'action' => 'users'],
+    'dashboard/users/view/:id' => ['controller' => 'DashboardController', 'action' => 'viewUser'],
+    'dashboard/users/orders/:id' => ['controller' => 'DashboardController', 'action' => 'userOrders'],
+    'dashboard/users/user-orders/:id' => ['controller' => 'DashboardController', 'action' => 'viewUserOrders'],
+    'dashboard/users/update-role/:id' => ['controller' => 'DashboardController', 'action' => 'updateUserRole'],
+    'dashboard/users/delete/:id' => ['controller' => 'DashboardController', 'action' => 'deleteUser'],
     'dashboard/all-orders' => ['controller' => 'DashboardController', 'action' => 'allOrders'],
     
     // ==================== WISHLIST ROUTES ====================
@@ -82,6 +87,7 @@ return [
     'orders/checkout' => ['controller' => 'OrderController', 'action' => 'checkout'],
     'orders/process' => ['controller' => 'OrderController', 'action' => 'process'],
     'orders/detail/:id' => ['controller' => 'OrderController', 'action' => 'detail'],
+    'orders/update-status/:id' => ['controller' => 'OrderController', 'action' => 'updateStatus'],
     'orders/cancel' => ['controller' => 'OrderController', 'action' => 'cancel'],
     'dashboard/orders' => ['controller' => 'OrderController', 'action' => 'index'],
     

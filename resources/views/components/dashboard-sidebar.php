@@ -50,8 +50,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= ($activeSection ?? '') === 'customers' ? 'active' : '' ?>" href="<?= url('dashboard/customers') ?>">
-                        <i class="fas fa-users me-2"></i> Customers
+                    <a class="nav-link <?= ($activeSection ?? '') === 'users' ? 'active' : '' ?>" href="<?= url('dashboard/users') ?>">
+                        <i class="fas fa-users me-2"></i> Users
                     </a>
                 </li>
                 <li class="nav-item">

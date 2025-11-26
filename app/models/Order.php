@@ -2,6 +2,7 @@
 require_once __DIR__ . '/Model.php';
 
 class Order extends Model {
+    protected $table = 'orders';
     
     /**
      * Create a new order

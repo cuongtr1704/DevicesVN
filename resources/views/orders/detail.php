@@ -7,8 +7,17 @@
                 <h2 class="mb-0">
                     <i class="fas fa-receipt me-2"></i>Order Details
                 </h2>
-                <a href="<?= url('dashboard/orders') ?>" class="btn btn-outline-primary">
-                    <i class="fas fa-arrow-left me-2"></i>Back to Orders
+                <?php
+                // Determine the back URL from breadcrumbs
+                $backUrl = url('dashboard/orders');
+                $backLabel = 'Back to Orders';
+                if (isset($breadcrumbs) && count($breadcrumbs) >= 2) {
+                    $backUrl = $breadcrumbs[count($breadcrumbs) - 2]['url'];
+                    $backLabel = 'Back to ' . $breadcrumbs[count($breadcrumbs) - 2]['label'];
+                }
+                ?>
+                <a href="<?= $backUrl ?>" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i><?= $backLabel ?>
                 </a>
             </div>
         </div>
@@ -66,7 +75,26 @@
                                     <i class="fas fa-<?= $statusIcon ?> me-2"></i><?= $statusLabel ?>
                                 </span>
                             </div>
-                            <?php if ($order['status'] === 'pending'): ?>
+                            <?php if (($userRole ?? 'customer') === 'admin'): ?>
+                                <!-- Admin Status Update -->
+                                <div class="status-update-section">
+                                    <label class="status-update-label mb-2">
+                                        <i class="fas fa-edit me-1"></i>Update Status
+                                    </label>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <select id="orderStatus" class="form-select status-select">
+                                            <option value="pending" <?= $order['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
+                                            <option value="confirmed" <?= $order['status'] === 'confirmed' ? 'selected' : '' ?>>Confirmed</option>
+                                            <option value="shipped" <?= $order['status'] === 'shipped' ? 'selected' : '' ?>>Shipped</option>
+                                            <option value="delivered" <?= $order['status'] === 'delivered' ? 'selected' : '' ?>>Delivered</option>
+                                            <option value="cancelled" <?= $order['status'] === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                                        </select>
+                                        <button class="btn btn-update-status" onclick="updateOrderStatus(<?= $order['id'] ?>)">
+                                            <i class="fas fa-check me-1"></i>Update
+                                        </button>
+                                    </div>
+                                </div>
+                            <?php elseif ($order['status'] === 'pending'): ?>
                                 <button class="btn btn-danger" onclick="cancelOrder(<?= $order['id'] ?>)">
                                     <i class="fas fa-ban me-2"></i>Cancel Order
                                 </button>
@@ -192,45 +220,7 @@
                 </div>
             </div>
 
-            <?php if ($order['status'] === 'pending' || $order['status'] === 'confirmed'): ?>
-                <div class="alert alert-info mt-4 shadow-sm border-0" role="alert">
-                    <h6 class="alert-heading">
-                        <i class="fas fa-info-circle me-2"></i>Order Status
-                    </h6>
-                    <p class="mb-0 small">
-                        <?php if ($order['status'] === 'pending'): ?>
-                            Your order is being processed. We'll update you once it's confirmed.
-                        <?php else: ?>
-                            Your order has been confirmed and will be shipped soon!
-                        <?php endif; ?>
-                    </p>
-                </div>
-            <?php endif; ?>
 
-            <?php if ($order['status'] === 'shipped'): ?>
-                <div class="alert alert-primary mt-4 shadow-sm border-0" role="alert">
-                    <h6 class="alert-heading">
-                        <i class="fas fa-truck me-2"></i>Out for Delivery
-                    </h6>
-                    <p class="mb-0 small">
-                        Your order is on the way! Expected delivery soon.
-                    </p>
-                </div>
-            <?php endif; ?>
-
-            <?php if ($order['status'] === 'delivered'): ?>
-                <div class="alert alert-success mt-4 shadow-sm border-0" role="alert">
-                    <h6 class="alert-heading">
-                        <i class="fas fa-check-circle me-2"></i>Delivered Successfully
-                    </h6>
-                    <p class="mb-2 small">
-                        Your order has been delivered. Thank you for shopping with us!
-                    </p>
-                    <a href="<?= url('products') ?>" class="btn btn-sm btn-success mt-2">
-                        <i class="fas fa-shopping-bag me-2"></i>Shop Again
-                    </a>
-                </div>
-            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -392,6 +382,61 @@ function showNotification(message, type) {
     z-index: 1;
 }
 
+/* Status Update Section Styling */
+.status-update-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 16px;
+    border-radius: 10px;
+    border: 2px solid #dee2e6;
+    margin-top: 16px;
+}
+
+.status-update-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #495057;
+    display: block;
+    margin-bottom: 0;
+}
+
+.status-select {
+    border: 2px solid #ced4da;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 140px;
+}
+
+.status-select:focus {
+    border-color: #6c63ff;
+    box-shadow: 0 0 0 0.2rem rgba(108, 99, 255, 0.15);
+}
+
+.btn-update-status {
+    background: linear-gradient(135deg, #6c63ff 0%, #5a52d5 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-update-status:hover {
+    background: linear-gradient(135deg, #5a52d5 0%, #4840b0 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+    color: white;
+}
+
+.btn-update-status:active {
+    transform: translateY(0);
+}
+
 @media (max-width: 768px) {
     .table {
         font-size: 0.9rem;
@@ -402,3 +447,49 @@ function showNotification(message, type) {
     }
 }
 </style>
+
+<script>
+function updateOrderStatus(orderId) {
+    const status = document.getElementById('orderStatus').value;
+    
+    fetch(`<?= url('orders/update-status/') ?>${orderId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', data.message || 'Order status updated successfully');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification('error', data.message || 'Failed to update order status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('error', 'An error occurred. Please try again.');
+    });
+}
+
+function showNotification(type, message) {
+    const notification = document.createElement('div');
+    notification.className = `custom-notification ${type === 'success' ? 'success' : 'error'}`;
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'times-circle'} me-2"></i>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+</script>

@@ -430,29 +430,298 @@ class DashboardController extends Controller {
     /**
      * Customers management (Admin only)
      */
-    public function customers() {
+    public function users() {
         if (!$this->isLoggedIn() || $_SESSION['user_role'] !== 'admin') {
             $this->redirect('dashboard');
             return;
         }
         
         $userModel = $this->model('User');
-        $customers = $userModel->getAll();
+        $users = $userModel->getAll();
         
         $breadcrumbs = [
             ['label' => 'Dashboard', 'url' => url('dashboard')],
-            ['label' => 'Customers', 'url' => '']
+            ['label' => 'Users', 'url' => '']
         ];
         
         $data = [
-            'title' => 'Manage Customers - ' . APP_NAME,
-            'customers' => $customers,
+            'title' => 'Manage Users - ' . APP_NAME,
+            'users' => $users,
+            'activeSection' => 'users',
+            'userRole' => 'admin',
+            'breadcrumbs' => $breadcrumbs
+        ];
+        
+        $this->view('dashboard/users', $data);
+    }
+    
+    /**
+     * View single user details (API endpoint)
+     */
+    public function viewUser($userId) {
+        header('Content-Type: application/json');
+        
+        if (!$this->isLoggedIn() || $_SESSION['user_role'] !== 'admin') {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            return;
+        }
+        
+        $userModel = $this->model('User');
+        $user = $userModel->findById($userId);
+        
+        if ($user) {
+            echo json_encode(['success' => true, 'user' => $user]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'User not found']);
+        }
+    }
+    
+    /**
+     * View user's orders (API endpoint)
+     */
+    public function userOrders($userId) {
+        header('Content-Type: application/json');
+        
+        if (!$this->isLoggedIn() || $_SESSION['user_role'] !== 'admin') {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            return;
+        }
+        
+        $userModel = $this->model('User');
+        $user = $userModel->findById($userId);
+        
+        if (!$user) {
+            echo json_encode(['success' => false, 'message' => 'User not found']);
+            return;
+        }
+        
+        $orderModel = $this->model('Order');
+        $database = Database::getInstance();
+        $db = $database->getConnection();
+        
+        // Get user's orders with item count
+        $stmt = $db->prepare("
+            SELECT o.*, 
+                   COUNT(oi.id) as item_count,
+                   SUM(oi.quantity) as total_items
+            FROM orders o
+            LEFT JOIN order_items oi ON o.id = oi.order_id
+            WHERE o.user_id = ?
+            GROUP BY o.id
+            ORDER BY o.created_at DESC
+        ");
+        $stmt->execute([$userId]);
+        $orders = $stmt->fetchAll();
+        
+        echo json_encode([
+            'success' => true, 
+            'orders' => $orders,
+            'user' => [
+                'id' => $user['id'],
+                'full_name' => $user['full_name'],
+                'email' => $user['email']
+            ]
+        ]);
+    }
+    
+    /**
+     * View user's orders page (full page view)
+     */
+    public function viewUserOrders($userId) {
+        if (!$this->isLoggedIn() || $_SESSION['user_role'] !== 'admin') {
+            $this->redirect('dashboard');
+            return;
+        }
+        
+        $userModel = $this->model('User');
+        $user = $userModel->findById($userId);
+        
+        if (!$user) {
+            $this->redirect('dashboard/customers');
+            return;
+        }
+        
+        $database = Database::getInstance();
+        $db = $database->getConnection();
+        
+        // Get filter parameters
+        $search = $_GET['search'] ?? '';
+        $statusFilter = $_GET['status'] ?? '';
+        $sortBy = $_GET['sort'] ?? 'newest';
+        
+        // Pagination
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $perPage = 10;
+        $offset = ($page - 1) * $perPage;
+        
+        // Build WHERE clause
+        $whereConditions = ["o.user_id = ?"];
+        $params = [$userId];
+        
+        if (!empty($search)) {
+            $whereConditions[] = "o.order_number LIKE ?";
+            $params[] = "%{$search}%";
+        }
+        
+        if (!empty($statusFilter)) {
+            $whereConditions[] = "o.status = ?";
+            $params[] = $statusFilter;
+        }
+        
+        $whereClause = implode(' AND ', $whereConditions);
+        
+        // Determine ORDER BY
+        $orderBy = match($sortBy) {
+            'oldest' => 'o.created_at ASC',
+            'amount_high' => 'o.total_amount DESC',
+            'amount_low' => 'o.total_amount ASC',
+            default => 'o.created_at DESC',
+        };
+        
+        // Get total count
+        $countStmt = $db->prepare("SELECT COUNT(*) FROM orders o WHERE {$whereClause}");
+        $countStmt->execute($params);
+        $totalOrders = $countStmt->fetchColumn();
+        $totalPages = ceil($totalOrders / $perPage);
+        
+        // Get user's orders with item count (with pagination and filters)
+        $stmt = $db->prepare("
+            SELECT o.*, 
+                   COUNT(oi.id) as item_count,
+                   SUM(oi.quantity) as total_items
+            FROM orders o
+            LEFT JOIN order_items oi ON o.id = oi.order_id
+            WHERE {$whereClause}
+            GROUP BY o.id
+            ORDER BY {$orderBy}
+            LIMIT ? OFFSET ?
+        ");
+        $params[] = $perPage;
+        $params[] = $offset;
+        $stmt->execute($params);
+        $orders = $stmt->fetchAll();
+        
+        // Get all orders for statistics (not paginated, but with filters)
+        $statsStmt = $db->prepare("SELECT status, total_amount FROM orders o WHERE {$whereClause}");
+        array_pop($params); // Remove offset
+        array_pop($params); // Remove limit
+        $statsStmt->execute($params);
+        $allOrders = $statsStmt->fetchAll();
+        
+        // Calculate order statistics
+        $orderStats = [
+            'pending' => 0,
+            'confirmed' => 0,
+            'shipped' => 0,
+            'delivered' => 0,
+            'cancelled' => 0,
+            'total_spent' => 0
+        ];
+        
+        foreach ($allOrders as $order) {
+            if (isset($orderStats[$order['status']])) {
+                $orderStats[$order['status']]++;
+            }
+            if ($order['status'] !== 'cancelled') {
+                $orderStats['total_spent'] += $order['total_amount'];
+            }
+        }
+        
+        $breadcrumbs = [
+            ['label' => 'Dashboard', 'url' => url('dashboard')],
+            ['label' => 'Users', 'url' => url('dashboard/customers')],
+            ['label' => $user['full_name'] . "'s Orders", 'url' => '']
+        ];
+        
+        $data = [
+            'title' => $user['full_name'] . "'s Orders - " . APP_NAME,
+            'user' => $user,
+            'orders' => $orders,
+            'orderStats' => $orderStats,
+            'pagination' => [
+                'current_page' => $page,
+                'total_pages' => $totalPages,
+                'per_page' => $perPage,
+                'total_items' => $totalOrders
+            ],
             'activeSection' => 'customers',
             'userRole' => 'admin',
             'breadcrumbs' => $breadcrumbs
         ];
         
-        $this->view('dashboard/customers', $data);
+        $this->view('dashboard/user-orders', $data);
+    }
+    
+    /**
+     * Update user role (API endpoint)
+     */
+    public function updateUserRole($userId) {
+        header('Content-Type: application/json');
+        
+        if (!$this->isLoggedIn() || $_SESSION['user_role'] !== 'admin') {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            return;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            return;
+        }
+        
+        $input = json_decode(file_get_contents('php://input'), true);
+        $role = $input['role'] ?? '';
+        
+        if (!in_array($role, ['customer', 'admin'])) {
+            echo json_encode(['success' => false, 'message' => 'Invalid role']);
+            return;
+        }
+        
+        // Prevent changing own role
+        if ($userId == $_SESSION['user_id']) {
+            echo json_encode(['success' => false, 'message' => 'Cannot change your own role']);
+            return;
+        }
+        
+        $userModel = $this->model('User');
+        $updated = $userModel->update($userId, ['role' => $role]);
+        
+        if ($updated) {
+            echo json_encode(['success' => true, 'message' => 'User role updated successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to update user role']);
+        }
+    }
+    
+    /**
+     * Delete user (API endpoint)
+     */
+    public function deleteUser($userId) {
+        header('Content-Type: application/json');
+        
+        if (!$this->isLoggedIn() || $_SESSION['user_role'] !== 'admin') {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            return;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            return;
+        }
+        
+        // Prevent deleting own account
+        if ($userId == $_SESSION['user_id']) {
+            echo json_encode(['success' => false, 'message' => 'Cannot delete your own account']);
+            return;
+        }
+        
+        $userModel = $this->model('User');
+        $deleted = $userModel->delete($userId);
+        
+        if ($deleted) {
+            echo json_encode(['success' => true, 'message' => 'User deleted successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to delete user']);
+        }
     }
     
     /**

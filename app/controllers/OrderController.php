@@ -46,9 +46,16 @@ class OrderController extends Controller {
             $this->redirect('login');
             return;
         }
-        
+
         $userId = $_SESSION['user_id'];
-        $order = $this->orderModel->getById($orderId, $userId);
+        $userRole = $_SESSION['user_role'] ?? 'customer';
+        
+        // Admin can view any order, customer can only view their own
+        if ($userRole === 'admin') {
+            $order = $this->orderModel->findById($orderId);
+        } else {
+            $order = $this->orderModel->getById($orderId, $userId);
+        }
         
         if (!$order) {
             $_SESSION['error'] = 'Order not found';
@@ -58,14 +65,34 @@ class OrderController extends Controller {
         
         $orderItems = $this->orderModel->getOrderItems($orderId);
         
+        // Determine breadcrumbs based on referrer
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        $breadcrumbs = [];
+        
+        if ($userRole === 'admin') {
+            // Always show user-specific orders link for admin
+            $userModel = $this->model('User');
+            $orderUser = $userModel->findById($order['user_id']);
+            $breadcrumbs = [
+                ['label' => 'Dashboard', 'url' => url('dashboard')],
+                ['label' => 'Users', 'url' => url('dashboard/users')],
+                ['label' => $orderUser['full_name'] . "'s Orders", 'url' => url('dashboard/users/user-orders/' . $order['user_id'])],
+                ['label' => 'Order #' . $order['order_number'], 'url' => '']
+            ];
+        } else {
+            $breadcrumbs = [
+                ['label' => 'Dashboard', 'url' => url('dashboard')],
+                ['label' => 'My Orders', 'url' => url('dashboard/orders')],
+                ['label' => 'Order #' . $order['order_number'], 'url' => '']
+            ];
+        }
+        
         $this->view('orders/detail', [
             'title' => 'Order Details - ' . $order['order_number'],
             'order' => $order,
             'orderItems' => $orderItems,
-            'breadcrumbs' => [
-                ['label' => 'My Orders', 'url' => url('dashboard/orders')],
-                ['label' => 'Order #' . $order['order_number'], 'url' => '']
-            ]
+            'breadcrumbs' => $breadcrumbs,
+            'userRole' => $userRole
         ]);
     }
     
@@ -184,9 +211,42 @@ class OrderController extends Controller {
                 'redirect' => url('dashboard/orders')
             ]);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to create order']);
+            echo json_encode(['success' => false, 'message' => 'Failed to place order']);
         }
-        exit;
+    }
+    
+    /**
+     * Update order status (Admin only)
+     */
+    public function updateStatus($orderId) {
+        header('Content-Type: application/json');
+        
+        if (!$this->isLoggedIn() || $_SESSION['user_role'] !== 'admin') {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            return;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            return;
+        }
+        
+        $input = json_decode(file_get_contents('php://input'), true);
+        $status = $input['status'] ?? '';
+        
+        $validStatuses = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
+        if (!in_array($status, $validStatuses)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid status']);
+            return;
+        }
+        
+        $updated = $this->orderModel->update($orderId, ['status' => $status]);
+        
+        if ($updated) {
+            echo json_encode(['success' => true, 'message' => 'Order status updated successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to update order status']);
+        }
     }
     
     /**

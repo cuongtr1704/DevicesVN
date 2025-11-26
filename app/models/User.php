@@ -1,7 +1,5 @@
 <?php
-/**
- * User Model
- */
+// User Model
 
 require_once ROOT_PATH . '/app/models/Model.php';
 

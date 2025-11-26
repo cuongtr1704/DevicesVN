@@ -1,9 +1,6 @@
 <?php
 
-/**
- * ProductImage Model
- * Handles product image gallery operations
- */
+// ProductImage Model - Handles product image gallery operations
 class ProductImage
 {
     private $db;
@@ -13,11 +10,7 @@ class ProductImage
         $this->db = Database::getInstance()->getConnection();
     }
 
-    /**
-     * Get all images for a product
-     * @param int $productId
-     * @return array
-     */
+    // Get all images for a product
     public function getProductImages($productId)
     {
         $stmt = $this->db->prepare("
@@ -45,11 +38,7 @@ class ProductImage
         return $images;
     }
 
-    /**
-     * Get the main image for a product
-     * @param int $productId
-     * @return array|false
-     */
+    // Get the main image for a product
     public function getMainImage($productId)
     {
         $stmt = $this->db->prepare("
@@ -74,12 +63,7 @@ class ProductImage
         return $image;
     }
     
-    /**
-     * Generate alt text from product name and image filename
-     * @param string $productName
-     * @param string $imageUrl
-     * @return string
-     */
+    // Generate alt text from product name and image filename
     private function generateAltText($productName, $imageUrl)
     {
         // Extract description from filename (e.g., "dell-xps-13-keyboard.jpg" -> "keyboard")
@@ -98,11 +82,7 @@ class ProductImage
         return $productName;
     }
 
-    /**
-     * Add a new product image
-     * @param array $data
-     * @return int|false Last insert ID or false
-     */
+    // Add a new product image
     public function addImage($data)
     {
         $stmt = $this->db->prepare("
@@ -120,13 +100,7 @@ class ProductImage
         return $success ? $this->db->lastInsertId() : false;
     }
 
-    /**
-     * Set an image as the main image for a product
-     * Unsets previous main image and sets the new one
-     * @param int $productId
-     * @param int $imageId
-     * @return bool
-     */
+    // Set an image as the main image for a product
     public function setMainImage($productId, $imageId)
     {
         try {
@@ -156,23 +130,14 @@ class ProductImage
         }
     }
 
-    /**
-     * Delete a product image
-     * @param int $imageId
-     * @return bool
-     */
+    // Delete a product image
     public function deleteImage($imageId)
     {
         $stmt = $this->db->prepare("DELETE FROM product_images WHERE id = ?");
         return $stmt->execute([$imageId]);
     }
 
-    /**
-     * Update image details
-     * @param int $imageId
-     * @param array $data
-     * @return bool
-     */
+    // Update image details
     public function updateImage($imageId, $data)
     {
         $fields = [];
@@ -198,11 +163,7 @@ class ProductImage
         return $stmt->execute($values);
     }
 
-    /**
-     * Reorder product images
-     * @param array $imageOrder Array of ['id' => newOrder] pairs
-     * @return bool
-     */
+    // Reorder product images
     public function reorderImages($imageOrder)
     {
         try {
@@ -222,11 +183,7 @@ class ProductImage
         }
     }
 
-    /**
-     * Get total image count for a product
-     * @param int $productId
-     * @return int
-     */
+    // Get total image count for a product
     public function getImageCount($productId)
     {
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM product_images WHERE product_id = ?");

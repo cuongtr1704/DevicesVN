@@ -1,6 +1,4 @@
-/**
- * Main JavaScript File
- */
+// Main JavaScript File
 
 $(document).ready(function() {
     

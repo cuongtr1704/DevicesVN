@@ -1,7 +1,4 @@
 <?php
-/**
- * Products Controller
- */
 
 class ProductsController extends Controller {
     

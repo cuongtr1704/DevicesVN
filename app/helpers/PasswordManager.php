@@ -1,8 +1,5 @@
 <?php
-/**
- * PasswordManager - Secure password hashing and verification
- * Uses HMAC-SHA256 with pepper + BCrypt for maximum security
- */
+// PasswordManager - Secure password hashing and verification using HMAC-SHA256 with pepper + BCrypt
 
 class PasswordManager {
     

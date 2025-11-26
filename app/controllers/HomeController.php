@@ -1,7 +1,4 @@
 <?php
-/**
- * Home Controller
- */
 
 class HomeController extends Controller {
     

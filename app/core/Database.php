@@ -1,7 +1,5 @@
 <?php
-/**
- * Database Class - PDO Database Handler
- */
+// Database Class - PDO Database Handler
 
 class Database {
     private static $instance = null;

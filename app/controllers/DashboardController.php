@@ -1,7 +1,4 @@
 <?php
-/**
- * Dashboard Controller
- */
 
 class DashboardController extends Controller {
     

@@ -204,24 +204,24 @@ $breadcrumbs = [
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="card h-100 p-4">
-                    <h4><i class="fas fa-map-marker-alt text-primary"></i> Hanoi Store</h4>
-                    <p class="mb-2"><strong>Address:</strong> 123 Nguyen Trai, Thanh Xuan, Hanoi</p>
-                    <p class="mb-2"><strong>Phone:</strong> 024-1234-5678</p>
-                    <p class="mb-0"><strong>Hours:</strong> Mon-Sat: 8:00 AM - 9:00 PM</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 p-4">
                     <h4><i class="fas fa-map-marker-alt text-primary"></i> Ho Chi Minh Store</h4>
-                    <p class="mb-2"><strong>Address:</strong> 456 Le Loi, District 1, HCMC</p>
+                    <p class="mb-2"><strong>Address:</strong> 268 Ly Thuong Kiet Street, Ward 14, District 10, Ho Chi Minh</p>
                     <p class="mb-2"><strong>Phone:</strong> 028-9876-5432</p>
                     <p class="mb-0"><strong>Hours:</strong> Mon-Sat: 8:00 AM - 9:00 PM</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card h-100 p-4">
+                    <h4><i class="fas fa-map-marker-alt text-primary"></i> Hanoi Store</h4>
+                    <p class="mb-2"><strong>Address:</strong> 1 Dai Co Viet, Hai Ba Trung, Hanoi</p>
+                    <p class="mb-2"><strong>Phone:</strong> 024-1234-5678</p>
+                    <p class="mb-0"><strong>Hours:</strong> Mon-Sat: 8:00 AM - 9:00 PM</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-4">
                     <h4><i class="fas fa-map-marker-alt text-primary"></i> Da Nang Store</h4>
-                    <p class="mb-2"><strong>Address:</strong> 789 Bach Dang, Hai Chau, Da Nang</p>
+                    <p class="mb-2"><strong>Address:</strong> 54 Nguyen Luong Bang Street, Lien Chieu District, Da Nang</p>
                     <p class="mb-2"><strong>Phone:</strong> 0236-111-2222</p>
                     <p class="mb-0"><strong>Hours:</strong> Mon-Sat: 8:00 AM - 9:00 PM</p>
                 </div>

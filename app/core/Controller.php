@@ -1,7 +1,5 @@
 <?php
-/**
- * Base Controller Class
- */
+// Base Controller Class
 
 class Controller {
     

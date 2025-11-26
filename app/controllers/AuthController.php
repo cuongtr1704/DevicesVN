@@ -1,7 +1,4 @@
 <?php
-/**
- * Auth Controller - User Authentication
- */
 
 class AuthController extends Controller {
     

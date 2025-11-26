@@ -1,7 +1,5 @@
 <?php
-/**
- * App Class - Main Application Router with Custom Routes Support
- */
+// App Class - Main Application Router with Custom Routes Support
 
 class App {
     protected $controller = 'HomeController';

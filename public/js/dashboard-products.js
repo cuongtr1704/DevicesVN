@@ -12,9 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCategories();
 });
 
-/**
- * Load all categories
- */
+// Load all categories
 function loadCategories() {
     fetch(`${window.location.origin}/devicesvn/dashboard/categories/list`)
         .then(response => response.json())
@@ -26,9 +24,7 @@ function loadCategories() {
         .catch(error => console.error('Error loading categories:', error));
 }
 
-/**
- * Add new specification row
- */
+// Add new specification row
 function addSpecificationRow(container, key = '', value = '') {
     const row = document.createElement('div');
     row.className = 'spec-row mb-2';
@@ -52,9 +48,7 @@ function addSpecificationRow(container, key = '', value = '') {
     container.appendChild(row);
 }
 
-/**
- * Preview image before upload
- */
+// Preview image before upload
 function previewImage(input, previewId) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -67,9 +61,7 @@ function previewImage(input, previewId) {
     }
 }
 
-/**
- * Load images in edit modal with upload functionality
- */
+// Load images in edit modal
 function loadEditImages(images) {
     const mainContainer = document.getElementById('mainImageDisplay');
     const altContainer = document.getElementById('altImagesDisplay');
@@ -186,9 +178,7 @@ function loadEditImages(images) {
     }
 }
 
-/**
- * Preview uploaded image immediately
- */
+// Preview uploaded image
 function previewUploadedImage(input, containerId, isMain) {
     if (input.files && input.files[0]) {
         // Store file reference BEFORE destroying the input
@@ -244,9 +234,7 @@ function previewUploadedImage(input, containerId, isMain) {
     }
 }
 
-/**
- * Cancel image upload (Edit Modal)
- */
+// Cancel image upload
 function cancelImageUpload(containerId, isMain) {
     // Clear stored file
     if (isMain) {
@@ -272,9 +260,7 @@ function cancelImageUpload(containerId, isMain) {
     }
 }
 
-/**
- * Cancel alt image upload (Edit Modal)
- */
+// Cancel alt image upload
 function cancelAltImageUpload(inputId, button) {
     // Clear stored file
     if (uploadedAltImages[inputId]) {
@@ -297,9 +283,7 @@ function cancelAltImageUpload(inputId, button) {
     }
 }
 
-/**
- * Cancel main image upload (Add Modal)
- */
+// Cancel main image upload in add modal
 function cancelAddMainImage() {
     // Clear stored file
     uploadedMainImage = null;
@@ -320,9 +304,7 @@ function cancelAddMainImage() {
     }
 }
 
-/**
- * Cancel alt image upload (Add Modal)
- */
+// Cancel alt image upload in add modal
 function cancelAddAltImage(inputId, button) {
     // Clear stored file
     if (uploadedAltImages[inputId]) {
@@ -347,9 +329,7 @@ function cancelAddAltImage(inputId, button) {
     }
 }
 
-/**
- * Mark image for deletion (not deleted until save)
- */
+// Mark image for deletion
 function markImageForDeletion(imageId, button) {
     if (!imagesToDelete.includes(imageId)) {
         imagesToDelete.push(imageId);
@@ -358,9 +338,7 @@ function markImageForDeletion(imageId, button) {
     }
 }
 
-/**
- * Restore image that was marked for deletion
- */
+// Restore marked image
 function restoreImage(imageId) {
     const index = imagesToDelete.indexOf(imageId);
     if (index > -1) {
@@ -370,9 +348,7 @@ function restoreImage(imageId) {
     }
 }
 
-/**
- * Delete single image (kept for compatibility but not used in edit modal)
- */
+// Delete single image
 function deleteImage(imageId) {
     fetch(`${window.location.origin}/devicesvn/dashboard/products/delete-image/${imageId}`, {
         method: 'POST'
@@ -393,9 +369,7 @@ function deleteImage(imageId) {
     });
 }
 
-/**
- * Add new product
- */
+// Add new product
 function addProduct() {
     const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
     const modalBody = document.getElementById('addProductContent');
@@ -549,9 +523,7 @@ function addProduct() {
     modal.show();
 }
 
-/**
- * Initialize alternative images for add modal
- */
+// Initialize alternative images for add modal
 function initializeAddAltImages() {
     const container = document.getElementById('addAltImagesDisplay');
     for (let i = 0; i < 3; i++) {
@@ -572,9 +544,7 @@ function initializeAddAltImages() {
     }
 }
 
-/**
- * Preview image in add modal
- */
+// Preview image in add modal
 function previewAddImage(input, containerId, isMain) {
     if (input.files && input.files[0]) {
         // Store file reference BEFORE destroying the input
@@ -625,9 +595,7 @@ function previewAddImage(input, containerId, isMain) {
     }
 }
 
-/**
- * Save new product
- */
+// Save new product
 function saveNewProduct() {
     const form = document.getElementById('addProductForm');
     if (!form.checkValidity()) {
@@ -680,9 +648,7 @@ function saveNewProduct() {
     });
 }
 
-/**
- * View product details
- */
+// View product details
 function viewProduct(productId) {
     const modal = new bootstrap.Modal(document.getElementById('viewProductModal'));
     const content = document.getElementById('viewProductContent');
@@ -827,9 +793,7 @@ function viewProduct(productId) {
         });
 }
 
-/**
- * Edit product
- */
+// Edit product
 function editProduct(productId) {
     const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
     const content = document.getElementById('editProductContent');
@@ -1020,9 +984,7 @@ function editProduct(productId) {
         });
 }
 
-/**
- * Save product changes
- */
+// Save product changes
 function saveProductChanges() {
     const form = document.getElementById('editProductForm');
     if (!form.checkValidity()) {
@@ -1081,9 +1043,7 @@ function saveProductChanges() {
     });
 }
 
-/**
- * Delete product
- */
+// Delete product
 function deleteProduct(productId, productName) {
     currentProductId = productId;
     document.getElementById('deleteProductMessage').textContent = 
@@ -1114,9 +1074,7 @@ function deleteProduct(productId, productName) {
     };
 }
 
-/**
- * Show custom notification
- */
+// Show custom notification
 function showToast(message, type = 'success') {
     const notification = document.createElement('div');
     notification.className = `custom-notification ${type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'error'}`;
@@ -1136,9 +1094,7 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-/**
- * Create toast container if it doesn't exist
- */
+// Create toast container if it doesn't exist
 function createToastContainer() {
     const container = document.createElement('div');
     container.id = 'toastContainer';

@@ -74,21 +74,7 @@ CREATE TABLE product_images (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Alt text auto-generated from product name for accessibility/SEO';
 
 -- ============================================================
--- 5. stores - Physical store locations
--- ============================================================
-CREATE TABLE stores (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    slug VARCHAR(100) NOT NULL UNIQUE,
-    address TEXT NOT NULL,
-    city VARCHAR(100) NOT NULL,
-    phone VARCHAR(20) NULL,
-    latitude DECIMAL(10, 8) NULL,
-    longitude DECIMAL(11, 8) NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ============================================================
--- 6. orders - Customer orders
+-- 5. orders - Customer orders
 -- ============================================================
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -105,7 +91,7 @@ CREATE TABLE orders (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- 7. order_items - Items in each order
+-- 6. order_items - Items in each order
 -- ============================================================
 CREATE TABLE order_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -120,7 +106,7 @@ CREATE TABLE order_items (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- 8. reviews - Product reviews
+-- 7. reviews - Product reviews
 -- ============================================================
 CREATE TABLE reviews (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -134,7 +120,7 @@ CREATE TABLE reviews (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- 9. cart - Shopping cart
+-- 8. cart - Shopping cart
 -- ============================================================
 CREATE TABLE cart (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -148,7 +134,7 @@ CREATE TABLE cart (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- 10. wishlist - User wishlist
+-- 9. wishlist - User wishlist
 -- ============================================================
 CREATE TABLE wishlist (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -202,12 +188,6 @@ INSERT INTO categories (name, slug, description, icon, parent_id, is_active, sor
 -- Password security: HMAC-SHA256(password, pepper) + BCrypt(cost=12)
 INSERT INTO users (full_name, email, password, role) VALUES
 ('DevicesVN Admin', 'admin@devicesvn.com', '$2y$10$jq52Y7vw9GKnKfW.7aV6XuDs5ud3oQc03LXlXQz97cB.fanWF2MSC', 'admin');
-
--- Stores
-INSERT INTO stores (name, slug, address, city, phone, latitude, longitude) VALUES
-('DevicesVN Hanoi', 'hanoi-store', '123 Nguyen Trai, Thanh Xuan', 'Hanoi', '024-1234-5678', 21.0285, 105.8542),
-('DevicesVN Ho Chi Minh', 'hcm-store', '456 Le Loi, District 1', 'Ho Chi Minh', '028-9876-5432', 10.7769, 106.7009),
-('DevicesVN Da Nang', 'danang-store', '789 Bach Dang, Hai Chau', 'Da Nang', '0236-111-2222', 16.0544, 108.2022);
 
 -- Products
 INSERT INTO products (category_id, name, slug, description, price, sale_price, sku, stock_quantity, brand, specifications, is_featured) VALUES

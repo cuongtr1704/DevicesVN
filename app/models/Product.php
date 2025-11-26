@@ -1,7 +1,5 @@
 <?php
-/**
- * Product Model
- */
+// Product Model
 
 require_once ROOT_PATH . '/app/models/Model.php';
 

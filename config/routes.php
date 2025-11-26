@@ -1,16 +1,5 @@
 <?php
-
-/**
- * Route Configuration - DevicesVN E-commerce
- * 
- * Define custom routes here for better URL control
- * Format: 'url-pattern' => ['controller' => 'ControllerName', 'action' => 'methodName']
- * 
- * Note: :id, :slug, :token are parameters that get passed to the controller method
- * - :slug = SEO-friendly URL text (e.g., "dell-xps-13" instead of ID "123")
- * - :id = Numeric identifier (e.g., "5", "100")
- * - :token = Unique token for password reset, verification, etc.
- */
+// Route Configuration
 
 return [
     // ==================== HOME ROUTES ====================

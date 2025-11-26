@@ -2,9 +2,7 @@
 
 const usersUrl = `${window.location.origin}/devicesvn/dashboard/users`;
 
-/**
- * View user details
- */
+// View user details
 function viewUserDetails(userId) {
     const modal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
     const content = document.getElementById('userDetailsContent');
@@ -82,16 +80,12 @@ function viewUserDetails(userId) {
         });
 }
 
-/**
- * View user orders - redirect to dedicated page
- */
+// View user orders
 function viewUserOrders(userId) {
     window.location.href = `${usersUrl}/user-orders/${userId}`;
 }
 
-/**
- * Edit user role
- */
+// Edit user role
 function editUserRole(userId, userName, currentRole) {
     const modal = new bootstrap.Modal(document.getElementById('editRoleModal'));
     
@@ -101,9 +95,7 @@ function editUserRole(userId, userName, currentRole) {
     modal.show();
 }
 
-/**
- * Save user role
- */
+// Save user role
 function saveUserRole() {
     const userId = document.getElementById('editUserId').value;
     const role = document.getElementById('editUserRole').value;
@@ -131,9 +123,7 @@ function saveUserRole() {
     });
 }
 
-/**
- * Show delete user modal
- */
+// Show delete user modal
 function deleteUser(userId, userName) {
     document.getElementById('deleteUserId').value = userId;
     document.getElementById('deleteUserName').textContent = userName;
@@ -142,9 +132,7 @@ function deleteUser(userId, userName) {
     modal.show();
 }
 
-/**
- * Confirm delete user
- */
+// Confirm delete user
 function confirmDeleteUser() {
     const userId = document.getElementById('deleteUserId').value;
     
@@ -167,9 +155,7 @@ function confirmDeleteUser() {
     });
 }
 
-/**
- * Get order status badge
- */
+// Get order status badge
 function getOrderStatusBadge(status) {
     const badges = {
         'pending': '<span class="badge bg-warning text-dark">Pending</span>',
@@ -181,9 +167,7 @@ function getOrderStatusBadge(status) {
     return badges[status] || '<span class="badge bg-secondary">Unknown</span>';
 }
 
-/**
- * Format currency
- */
+// Format currency
 function formatCurrency(amount) {
     return new Intl.NumberFormat('vi-VN', {
         style: 'currency',
@@ -191,9 +175,7 @@ function formatCurrency(amount) {
     }).format(amount);
 }
 
-/**
- * Show notification (matching categories section styling)
- */
+// Show notification
 function showNotification(type, message) {
     const notification = document.createElement('div');
     notification.className = `custom-notification ${type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'error'}`;

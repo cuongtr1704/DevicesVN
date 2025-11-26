@@ -1,7 +1,5 @@
 <?php
-/**
- * Category Model
- */
+// Category Model
 
 require_once ROOT_PATH . '/app/models/Model.php';
 

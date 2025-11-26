@@ -1,7 +1,5 @@
 <?php
-/**
- * Base Model Class
- */
+// Base Model Class
 
 class Model {
     protected $db;
